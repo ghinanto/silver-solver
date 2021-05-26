@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>  // vector class-template definition
 #include "../inc/NZVector.hpp"
+#include "../inc/tool.hpp"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -37,24 +38,31 @@ int main()
         NZVector<complex<double>> a;
         NZVector<complex<double>> b(a);
         NZVector<complex<double>> c(move(a));
+        NZVector<double> r;
+        b.print();
+        tool::rand_to_vec(b, 200, 0);
+        b.print();
 
         // NZVector<double> a;
         // NZVector<double> b(a);
         // NZVector<double> c(move(a));
 
-        b = c;
-        c = move(b);
-        c.push_back({2, 3});
-        c.push_back({0, 1});
-        c.print();
-        a.print();
-        b.print();
-        cout << '\n' << c.at(0) << '\n';
+        /*         b = c;
+                c = move(b);
+                c.push_back({2, 3});
+                c.push_back({0, 1});
+                c.print();
+                a.print();
+                b.print();
+                cout << '\n' << c.at(0) << '\n';
+         */
         break;
       }
     }
     user_choice = GetRequest();
   }
+
+  return 0;
 }
 
 // permette all'utente di realizzare la scelta del metodo di rimpimento della

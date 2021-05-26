@@ -48,6 +48,21 @@ NZVector<T>& NZVector<T>::operator=(NZVector&& that)
 }
 
 template <class T>
+void NZVector<T>::reserve(const size_t capacity)
+{
+  // idx_ contiene un indice di controllo
+  this->val_.reserve(capacity);
+  this->idx_.reserve(capacity + 1);
+}
+
+template <class T>
+void NZVector<T>::clear()
+{
+  this->val_.clear();
+  this->idx_.assign({0});
+}
+
+template <class T>
 T NZVector<T>::at(const size_t pos) const
 {
   // 'pos' è negativo o maggiore uguale dell'indice di controllo

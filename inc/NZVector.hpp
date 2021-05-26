@@ -22,6 +22,10 @@ class NZVector
   NZVector& operator=(NZVector&&);
   NZVector& operator=(const initializer_list<T>&);
 
+  // imposta capacità del vettore
+  void reserve(const size_t);
+  // cancella il contenuto del vettore. lascia invariata la capacità
+  void clear();
   // Restituisce il valore che corrisponde all'indice 'pos' nell'elenco esteso
   T at(const size_t pos) const;
   // Restituisce la lunghezza dell'elenco esteso
@@ -31,11 +35,11 @@ class NZVector
   void print_plain(ostream& = cout) const;
   // Definizione necessaria in modo che ogni specializzazione della classe
   // definisce il proprio operatore
-  friend ostream& operator<<(ostream& out, const NZVector&)
-  {
-    return out;
-  }
-
+  /*   friend ostream& operator<<(ostream& out, const NZVector&)
+    {
+      return out;
+    }
+   */
   void push_back(const T&);
 
   // Distruttore
