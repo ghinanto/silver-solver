@@ -48,6 +48,45 @@ NZVector<T>& NZVector<T>::operator=(NZVector&& that)
 }
 
 template <class T>
+void NZVector<T>::set(const size_t pos, const T& val)
+{
+  // 'pos' è negativo o maggiore uguale dell'indice di controllo, i.e. l'ultimo
+  // indice contenuto in 'idx_'
+  if (pos >= this->size())
+    throw out_of_range("NZVector::set: pos is not referred to any value");
+
+  const long pos_nonzero{this->plain_to_nonzero(pos)};
+  if (pos_nonzero != -1) {
+    // 'pos' corrisponde a un valore non nullo
+    if (tool::is_zero(val)) {
+      // clog << "\n0->nz";
+      // Elimino dal vettore il valore precedente del coefficiente e il suo
+      // indice
+      // '-1' perché rend punta la posizione precedente la prima
+      idx_.erase(idx_.cbegin() + pos_nonzero);
+      val_.erase(val_.cbegin() + pos_nonzero);
+    } else {
+      // clog << "\nnz->nz";
+      // Cambio valore del coefficiente
+      *(val_.begin() + pos_nonzero) = val;
+    }
+  } else if (!tool::is_zero(val)) {
+    // clog << "\nnz->0";
+    long pos_insert{0};
+    // Devo inserire 'pos' prima degli indici di cui è minore e dopo quelli
+    // di cui è maggiore.
+    // Alla stessa posizione inserisco 'val'.
+    for (size_t idx : idx_) {
+      if (pos < idx) break;
+      ++pos_insert;
+    }
+    idx_.insert(idx_.cbegin() + pos_insert, pos);
+    val_.insert(val_.cbegin() + pos_insert, val);
+  } else /*clog << "\n0->0"*/
+    ;    // sostituisco 0 con 0
+}
+
+template <class T>
 void NZVector<T>::reserve(const size_t capacity)
 {
   // idx_ contiene un indice di controllo
@@ -69,28 +108,10 @@ T NZVector<T>::at(const size_t pos) const
   if (pos >= this->size())
     throw out_of_range("NZVector::at: index can't be greater than size");
 
-  reverse_iterator<vector<long>::const_iterator> pos_it;
-  // Cerco 'pos' nell'elenco degli indici 'idx_'.
-  // A causa dello schema di storage, nel vettore 'idx_' un indice qualsiasi
-  // 'pos' può trovarsi nel range [0,pos] oppure non trovarsi affatto.
-  // Se 'pos' è minore della lunghezza dell'elenco degli indici,
-  // ALLORA posso escludere gli indici oltre 'pos' dalla mia ricerca.
-  // ALTRIMENTI sono costretto a cercare lungo tutto l'elenco degli indici.
-  // '+1' perchè pos è un indice, size è una dimensione
-  if (pos + 1 < idx_.size())
-    // '-1' perché 'crend' punta la posizione precedente la prima e il valore
-    // zero di 'pos' identifica la prima posizione.
-    pos_it = find(idx_.crend() - pos - 1, idx_.crend(), pos);
-  else
-    pos_it = find(idx_.crbegin(), idx_.crend(), pos);
-
+  const long pos_nonzero{this->plain_to_nonzero(pos)};
   // 'pos' non è presente nell'elenco degli indici, ovvero il valore è nullo
-  if (idx_.crend() == pos_it) return 0.;
-
-  // 'pos' è presente nell'elenco degli indici, ed è puntato dall'iteratore
-  // 'pos_it'.
-  // '-1' perché per la prima posizione 'distance' vale 1 e 'nz_pos' vale 0.
-  long pos_nonzero = distance(pos_it, idx_.crend()) - 1;
+  if (pos_nonzero == -1) return 0.;
+  // 'pos' è presente nell'elenco degli indici
   return val_.at(pos_nonzero);  // throw out_of_range
 };
 
@@ -137,4 +158,34 @@ template <class T>
 NZVector<T>::~NZVector()
 {
   clog << "\nDistruggo\n";
+}
+
+template <class T>
+long NZVector<T>::plain_to_nonzero(const size_t pos) const
+{
+  // 'pos' è negativo o maggiore uguale dell'indice di controllo
+  if (pos >= this->size())
+    throw out_of_range("NZVector::at: index can't be greater than size");
+
+  // Cerco 'pos' nell'elenco degli indici 'idx_'.
+  // A causa dello schema di storage, nel vettore 'idx_' un indice qualsiasi
+  // 'pos' può trovarsi nel range [0,pos] oppure non trovarsi affatto.
+  // Se 'pos' è minore della lunghezza dell'elenco degli indici,
+  // ALLORA posso escludere gli indici oltre 'pos' dalla mia ricerca.
+  // e l'indice avrà più probabilità di essere trovato vicino alla posizione
+  // 'pos' che occurebbe nell'elenco esteso, piuttosto che all'inizio di idx_.
+  // Questo giustifica l'uso degli iteratori inversi.
+  // ALTRIMENTI sono costretto a cercare lungo tutto l'elenco degli indici.
+  // 'pos+1' perchè pos è un indice, size è una dimensione
+  // '-1' perché 'crend' punta la posizione precedente la prima e il valore
+  // zero di 'pos' identifica la prima posizione.
+  std::reverse_iterator<std::vector<long>::const_iterator> reverse_it;
+  if (pos + 1 < idx_.size())
+    reverse_it = find(idx_.crend() - pos - 1, idx_.crend(), pos);
+  else
+    reverse_it = find(idx_.crbegin(), idx_.crend(), pos);
+
+  // La distanza tra il primo elemento e crend() è 1. Quindi necessario -1
+  // perchè il primo elemento è puntato da idx_.rbegin()
+  return distance(reverse_it, idx_.crend()) - 1;
 }

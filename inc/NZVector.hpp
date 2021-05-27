@@ -24,6 +24,8 @@ class NZVector
 
   // imposta capacità del vettore
   void reserve(const size_t);
+  // cambia valore di un coefficiente
+  void set(const size_t, const T&);
   // cancella il contenuto del vettore. lascia invariata la capacità
   void clear();
   // Restituisce il valore che corrisponde all'indice 'pos' nell'elenco esteso
@@ -45,7 +47,12 @@ class NZVector
   // Distruttore
   ~NZVector();
 
+  long plain_to_nonzero(const size_t) const;
+
  private:
+  // Individua l'indice 'pos' nell'elenco degli indici idx_ e restituisce la
+  // posizione in cui si trova.
+  // Se 'pos' non è presente nell'elenco degli indici, restituisce -1
   vector<long> idx_{0};
   vector<T> val_;
 };

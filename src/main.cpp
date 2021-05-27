@@ -39,10 +39,17 @@ int main()
         NZVector<complex<double>> b(a);
         NZVector<complex<double>> c(move(a));
         NZVector<double> r;
-        b.print();
-        tool::rand_to_vec(b, 200, 0);
+        tool::rand_to_vec(b, 50, 0);
+        for (int i = 0; i < 10; ++i) b.push_back(0.);
+        b.push_back({9., 5.});
+        b.set(0, 0.);
+        cout << "\nb[0] = " << b.at(0) << "\nb[60] = " << b.at(60) << "\n"
+             << b.plain_to_nonzero(60) << '\n';
         b.print();
 
+        b.set(0, {4., 6.});
+        cout << "\nb[0] = " << b.at(0) << "\nb[60] = " << b.at(60) << '\n';
+        b.print();
         // NZVector<double> a;
         // NZVector<double> b(a);
         // NZVector<double> c(move(a));
@@ -54,7 +61,6 @@ int main()
                 c.print();
                 a.print();
                 b.print();
-                cout << '\n' << c.at(0) << '\n';
          */
         break;
       }

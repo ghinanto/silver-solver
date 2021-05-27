@@ -1,6 +1,7 @@
 #ifndef TOOL_H
 #define TOOL_H
 
+#include <iterator>
 #include <limits>
 #include <string>
 #include <tuple>
@@ -9,6 +10,9 @@ using namespace std;
 
 namespace tool {
 
+/* template <class ReverseIterator>
+typename ReverseIterator::iterator_type make_forward(ReverseIterator rit);
+ */
 template <class T>
 bool is_zero(const T&);
 
