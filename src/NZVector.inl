@@ -10,20 +10,20 @@
 template <class T>
 NZVector<T>::NZVector()
 {
-  clog << "\nCostruisco di default\n";
+  std::clog << "\nCostruisco di default\n";
 }
 
 template <class T>
 NZVector<T>::NZVector(const NZVector& that) : idx_(that.idx_), val_(that.val_)
 {
-  clog << "\nCostruisco per copia\n";
+  std::clog << "\nCostruisco per copia\n";
 }
 
 template <class T>
 NZVector<T>::NZVector(NZVector&& that)
     : idx_(move(that.idx_)), val_(move(that.val_))
 {
-  clog << "\nCostruisco spostando\n";
+  std::clog << "\nCostruisco spostando\n";
   // L'elenco degli indici deve contenere almeno l'indice di controllo
   that.idx_.assign({0});
 }
@@ -31,7 +31,7 @@ NZVector<T>::NZVector(NZVector&& that)
 template <class T>
 NZVector<T>& NZVector<T>::operator=(const NZVector& that)
 {
-  clog << "\nAssegno per copia\n";
+  std::clog << "\nAssegno per copia\n";
 
   idx_ = that.idx_;
   val_ = that.val_;
@@ -41,7 +41,7 @@ NZVector<T>& NZVector<T>::operator=(const NZVector& that)
 template <class T>
 NZVector<T>& NZVector<T>::operator=(NZVector&& that)
 {
-  clog << "\nAssegno spostando\n";
+  std::clog << "\nAssegno spostando\n";
   idx_ = move(that.idx_);
   val_ = move(that.val_);
   // L'elenco degli indici deve contenere almeno l'indice di controllo
@@ -55,7 +55,7 @@ void NZVector<T>::set(const size_t pos, const T& val)
   // 'pos' è negativo o maggiore uguale dell'indice di controllo, i.e. l'ultimo
   // indice contenuto in 'idx_'
   if (pos >= this->size())
-    throw out_of_range("NZVector::set: pos is not referred to any value");
+    throw std::out_of_range("NZVector::set: pos is not referred to any value");
 
   const long pos_nonzero{this->plain_to_nonzero(pos)};
 
@@ -98,7 +98,7 @@ void NZVector<T>::set(const size_t pos, X action)
   // 'pos' è negativo o maggiore uguale dell'indice di controllo, i.e. l'ultimo
   // indice contenuto in 'idx_'
   if (pos >= this->size())
-    throw out_of_range("NZVector::set: pos is not referred to any value");
+    throw std::out_of_range("NZVector::set: pos is not referred to any value");
 
   T val{0.};
   const long pos_nonzero{this->plain_to_nonzero(pos)};
@@ -163,7 +163,7 @@ T NZVector<T>::at(const size_t pos) const
 {
   // 'pos' è negativo o maggiore uguale dell'indice di controllo
   if (pos >= this->size())
-    throw out_of_range("NZVector::at: index can't be greater than size");
+    throw std::out_of_range("NZVector::at: index can't be greater than size");
 
   const long pos_nonzero{this->plain_to_nonzero(pos)};
   // 'pos' non è presente nell'elenco degli indici, ovvero il valore è nullo
@@ -181,21 +181,21 @@ size_t NZVector<T>::size() const
 }
 
 template <class T>
-void NZVector<T>::print(ostream& out) const
+void NZVector<T>::print(std::ostream& out) const
 {
   long i{0};
-  cout << "\nidx_:\n{";
+  std::cout << "\nidx_:\n{";
   for (const auto& idx : idx_) out << "\n  [" << i++ << "] = " << idx;
-  cout << "\n}";
+  std::cout << "\n}";
 
   i = 0;
-  cout << "\nval_:\n{";
+  std::cout << "\nval_:\n{";
   for (const auto& val : val_) out << "\n  [" << i++ << "] = " << val;
-  cout << "\n}";
+  std::cout << "\n}";
 }
 
 template <class T>
-void NZVector<T>::print_plain(ostream&) const
+void NZVector<T>::print_plain(std::ostream&) const
 {
 }
 
@@ -214,7 +214,7 @@ void NZVector<T>::push_back(const T& value)
 template <class T>
 NZVector<T>::~NZVector()
 {
-  clog << "\nDistruggo\n";
+  std::clog << "\nDistruggo\n";
 }
 
 template <class T>
@@ -222,7 +222,7 @@ long NZVector<T>::plain_to_nonzero(const size_t pos) const
 {
   // 'pos' è negativo o maggiore uguale dell'indice di controllo
   if (pos >= this->size())
-    throw out_of_range("NZVector::at: pos is not referred to any value");
+    throw std::out_of_range("NZVector::at: pos is not referred to any value");
 
   // Cerco 'pos' nell'elenco degli indici 'idx_'.
   // A causa dello schema di storage, nel vettore 'idx_' un indice qualsiasi
@@ -237,11 +237,11 @@ long NZVector<T>::plain_to_nonzero(const size_t pos) const
   // zero di 'pos' identifica la prima posizione.
   std::reverse_iterator<std::vector<long>::const_iterator> reverse_it;
   if (pos < idx_.size())
-    reverse_it = find(idx_.crend() - pos - 1, idx_.crend(), pos);
+    reverse_it = std::find(idx_.crend() - pos - 1, idx_.crend(), pos);
   else
-    reverse_it = find(idx_.crbegin(), idx_.crend(), pos);
+    reverse_it = std::find(idx_.crbegin(), idx_.crend(), pos);
 
   // La distanza tra il primo elemento e crend() è 1. Quindi necessario -1
   // perchè il primo elemento è puntato da idx_.rbegin()
-  return distance(reverse_it, idx_.crend()) - 1;
+  return std::distance(reverse_it, idx_.crend()) - 1;
 }

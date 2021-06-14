@@ -8,7 +8,6 @@
 #include <string>
 #include <type_traits>
 #include <vector>
-using namespace std;
 
 template <class T = double>
 class NZVector
@@ -18,11 +17,11 @@ class NZVector
   NZVector();
   NZVector(const NZVector&);
   NZVector(NZVector&&);
-  NZVector(const initializer_list<T>&);
+  NZVector(const std::initializer_list<T>&);
   // Operatore uguale
   NZVector& operator=(const NZVector&);
   NZVector& operator=(NZVector&&);
-  NZVector& operator=(const initializer_list<T>&);
+  NZVector& operator=(const std::initializer_list<T>&);
 
   // imposta capacità del vettore
   void reserve(const size_t);
@@ -48,9 +47,9 @@ class NZVector
   // Restituisce la lunghezza dell'elenco esteso
   size_t size() const;
   // Scrive sull'output l'elenco degli indici e l'elenco dei valori
-  void print(ostream& = cout) const;
+  void print(std::ostream& = std::cout) const;
   // Scrive sull'output l'elenco esteso
-  void print_plain(ostream& = cout) const;
+  void print_plain(std::ostream& = std::cout) const;
   // Definizione necessaria in modo che ogni specializzazione della classe
   // definisca il proprio operatore
   /*   friend ostream& operator<<(ostream& out, const NZVector&)
@@ -76,8 +75,8 @@ class NZVector
   // Individua l'indice 'pos' nell'elenco degli indici idx_ e restituisce la
   // posizione in cui si trova.
   // Se 'pos' non è presente nell'elenco degli indici, restituisce -1
-  vector<long> idx_{0};
-  vector<T> val_;
+  std::vector<long> idx_{0};
+  std::vector<T> val_;
 };
 
 #include "../src/NZVector.inl"

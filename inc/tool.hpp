@@ -7,7 +7,6 @@
 #include <string>
 #include <tuple>
 #include <vector>
-using namespace std;
 
 namespace tool {
 
@@ -27,7 +26,7 @@ bool is_zero(const T&);
 // Riempie un vettore di dimensione 'size' con valori random
 void rand_to_vec(NZVector<double>&, long size);
 // complex_on_tot percentuale tra 0 e 100
-void rand_to_vec(NZVector<complex<double>>&, long, short complex_on_tot);
+void rand_to_vec(NZVector<std::complex<double>>&, long, short complex_on_tot);
 
 }  // namespace tool
 

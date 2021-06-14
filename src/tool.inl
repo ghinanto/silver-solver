@@ -36,15 +36,15 @@ void tool::get_input(T& variable, std::istream& input, std::ostream& output)
 template <class T>
 bool tool::is_zero(const T& value)
 {
-  if (abs(value) < numeric_limits<T>::epsilon()) return true;
+  if (std::abs(value) < std::numeric_limits<T>::epsilon()) return true;
   return false;
 }
 
 template <>
-bool tool::is_zero<complex<double>>(const complex<double>& value)
+bool tool::is_zero<std::complex<double>>(const std::complex<double>& value)
 {
-  if (abs(value.real()) < numeric_limits<double>::epsilon() &&
-      abs(value.imag()) < numeric_limits<double>::epsilon())
+  if (std::abs(value.real()) < std::numeric_limits<double>::epsilon() &&
+      std::abs(value.imag()) < std::numeric_limits<double>::epsilon())
     return true;
   return false;
 }
@@ -52,35 +52,37 @@ bool tool::is_zero<complex<double>>(const complex<double>& value)
 void tool::rand_to_vec(NZVector<double>& vec, long size)
 {
   if (size < 0)
-    throw invalid_argument("rand_to_vec: negative amount of rows or columns");
+    throw std::invalid_argument(
+        "rand_to_vec: negative amount of rows or columns");
   vec.clear();
   vec.reserve(size);
 
   // Boundaries User Input
   double coeff_min{0.}, coeff_max{0.};
 
-  cout << "\nCoefficients are gonna be generated uniformly between two real "
-          "numbers"
-       << "\nEnter first boundary";
+  std::cout
+      << "\nCoefficients are gonna be generated uniformly between two real "
+         "numbers"
+      << "\nEnter first boundary";
   tool::get_input(coeff_min, std::cin);
 
-  cout << "\nEnter second boundary";
+  std::cout << "\nEnter second boundary";
   tool::get_input(coeff_max, std::cin);
 
   // Generation
-  mt19937 gen;  // generatore dei coeff
-  uniform_real_distribution<double> dis_coeff(coeff_min, coeff_max);
-  uniform_int_distribution<short> dis_coin(0, 100);
+  std::mt19937 gen;  // generatore dei coeff
+  std::uniform_real_distribution<double> dis_coeff(coeff_min, coeff_max);
+  std::uniform_int_distribution<short> dis_coin(0, 100);
 
   // eseguo seed, fornisco alternativa sicura se primo metodo(migliore) non
   // funzia
-  try {                // random_device may be unavailable
-    random_device rd;  // generatore dei seed
+  try {                     // random_device may be unavailable
+    std::random_device rd;  // generatore dei seed
     gen.seed(rd());
-  } catch (exception& e) {
+  } catch (std::exception& e) {
     typedef std::chrono::high_resolution_clock clockHR;
     clockHR::time_point beginning = clockHR::now();
-    cerr << "\nexception caught: " << e.what() << '\n';
+    std::cerr << "\nexception caught: " << e.what() << '\n';
     clockHR::duration d = clockHR::now() - beginning;
     unsigned seed_timer = d.count();  // get seed based on timer
 
@@ -93,40 +95,42 @@ void tool::rand_to_vec(NZVector<double>& vec, long size)
   }
 }
 
-void tool::rand_to_vec(NZVector<complex<double>>& vec,
+void tool::rand_to_vec(NZVector<std::complex<double>>& vec,
                        long size,
                        short complex_on_tot)
 {
   if (size < 0)
-    throw invalid_argument("rand_to_vec: negative amount of rows or columns");
+    throw std::invalid_argument(
+        "rand_to_vec: negative amount of rows or columns");
   vec.clear();
   vec.reserve(size);
 
   // Boundaries User Input
   double coeff_min{0.}, coeff_max{0.};
 
-  cout << "\nCoefficients are gonna be generated uniformly between two real "
-          "numbers"
-       << "\nEnter first boundary";
+  std::cout
+      << "\nCoefficients are gonna be generated uniformly between two real "
+         "numbers"
+      << "\nEnter first boundary";
   tool::get_input(coeff_min, std::cin);
 
-  cout << "\nEnter second boundary";
+  std::cout << "\nEnter second boundary";
   tool::get_input(coeff_max, std::cin);
 
   // Generation
-  mt19937 gen;  // generatore dei coeff
-  uniform_real_distribution<double> dis_coeff(coeff_min, coeff_max);
-  uniform_int_distribution<short> dis_coin(0, 100);
+  std::mt19937 gen;  // generatore dei coeff
+  std::uniform_real_distribution<double> dis_coeff(coeff_min, coeff_max);
+  std::uniform_int_distribution<short> dis_coin(0, 100);
 
   // eseguo seed, fornisco alternativa sicura se primo metodo(migliore) non
   // funzia
-  try {                // random_device may be unavailable
-    random_device rd;  // generatore dei seed
+  try {                     // random_device may be unavailable
+    std::random_device rd;  // generatore dei seed
     gen.seed(rd());
-  } catch (exception& e) {
+  } catch (std::exception& e) {
     typedef std::chrono::high_resolution_clock clockHR;
     clockHR::time_point beginning = clockHR::now();
-    cerr << "\nexception caught: " << e.what() << '\n';
+    std::cerr << "\nexception caught: " << e.what() << '\n';
     clockHR::duration d = clockHR::now() - beginning;
     unsigned seed_timer = d.count();  // get seed based on timer
 
