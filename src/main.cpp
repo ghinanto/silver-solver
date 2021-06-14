@@ -39,15 +39,22 @@ int main()
         NZVector<complex<double>> b(a);
         NZVector<complex<double>> c(move(a));
         NZVector<double> r;
+        string s;
+        tool::get_input(s);
+        cout << s << '\n';
         tool::rand_to_vec(b, 50, 0);
         for (int i = 0; i < 10; ++i) b.push_back(0.);
         b.push_back({9., 5.});
         b.set(0, 0.);
         cout << "\nb[0] = " << b.at(0) << "\nb[60] = " << b.at(60) << "\n"
-             << b.plain_to_nonzero(60) << '\n';
+             << '\n';
         b.print();
 
         b.set(0, {4., 6.});
+        cout << "\nb[0] = " << b.at(0) << "\nb[60] = " << b.at(60) << '\n';
+        b.print();
+
+        b.set(0, [](complex<double>& val) { val = {56., 87.4}; });
         cout << "\nb[0] = " << b.at(0) << "\nb[60] = " << b.at(60) << '\n';
         b.print();
         // NZVector<double> a;
@@ -75,7 +82,7 @@ int main()
 // matrice
 unsigned short GetRequest()
 {
-  long user_choice;
+  short user_choice;
   // Mostra minima veste grafica al menu
   cout << "\n\033[1;41;43;7m  Silver Solver\033[41;43;7m               "
           "      \033[0m\n"
@@ -94,23 +101,9 @@ unsigned short GetRequest()
           "\033[0m\n"
        << "\033[41;43m                                    \033[0m\n";
 
-  do {  // input user request
-    cout << "\n? ";
-    cin >> user_choice;
-
-    if (cin.eof()) {
-      cerr << "Input stream closed\n";
-      exit(EXIT_FAILURE);  //?
-    } else if (!cin) {
-      cin.clear();
-      user_choice = 0;  // null state: do-while loop goes on
-    }
-    cin.ignore(numeric_limits<streamsize>::max(),
-               '\n');  //"8.9" is not a cin error, thus require ignore.
-                       // Everything else such as ".", "," or too long ints put
-                       // cin in error state, thus require clear.
-
-  } while (user_choice < FILE_INPUT || user_choice > END);
+  do
+    tool::get_input(user_choice, std::cin);
+  while (user_choice < FILE_INPUT || user_choice > END);
 
   return user_choice;
 }

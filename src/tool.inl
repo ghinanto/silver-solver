@@ -1,5 +1,6 @@
 #include <cmath>    // abs(double)
 #include <complex>  // abs(complex)
+#include <iostream>
 #include <iterator>
 #include <limits>
 #include <string>
@@ -7,19 +8,30 @@
 #include <vector>
 #include "../inc/tool.hpp"
 
-// base() restituisce un forward iterator che punta l'elemento che segue quello
-// che il reverse iterator stava puntando
-/* template <class ReverseIterator>
-typename ReverseIterator::iterator_type make_forward(ReverseIterator rit)
+template <class T>
+void tool::get_input(T& variable, std::istream& input, std::ostream& output)
 {
-  if (rit == rend())
-    ;
-  return --(rit.base());  // move result of .base() back by one.
-                          // alternatively
-                          // return (++rit).base() ;
-                          // or
-                          // return (rit+1).base().
-} */
+  output << "\n? ";
+  input >> variable;
+
+  while (!input) {
+    if (input.eof()) {
+      output << "Input stream closed\n";
+      exit(EXIT_FAILURE);
+    }
+    output << "\n? ";
+    // Everything such as ".", "," puts cin in error state, thus
+    // require  clear.
+    input.clear();
+    //"8.9" or  "94ybib" is not a cin error. Initialize w\ 8
+    // but leavs ".9" in stream, thus
+    // require  ignore.
+    input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    input >> variable;
+  }
+  input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
 
 template <class T>
 bool tool::is_zero(const T& value)
@@ -49,47 +61,11 @@ void tool::rand_to_vec(NZVector<double>& vec, long size)
 
   cout << "\nCoefficients are gonna be generated uniformly between two real "
           "numbers"
-       << "\nEnter first boundary"
-       << "\n? ";
-  cin >> coeff_min;
+       << "\nEnter first boundary";
+  tool::get_input(coeff_min, std::cin);
 
-  while (!cin) {
-    if (cin.eof()) {
-      cerr << "Input stream closed\n";
-      exit(EXIT_FAILURE);
-    }
-    cout << "\n? ";
-    // Everything such as ".", "," puts cin in error state, thus
-    // require  clear.
-    cin.clear();
-    //"8.9" or  "94ybib" is not a cin error. Initialize w\ 8
-    // but leavs ".9" in stream, thus
-    // require  ignore.
-    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    cin >> coeff_min;
-  }
-
-  cout << "\nEnter second boundary"
-       << "\n? ";
-  cin >> coeff_max;
-
-  while (!cin) {
-    if (cin.eof()) {
-      cerr << "Input stream closed\n";
-      exit(EXIT_FAILURE);  //?
-    }
-    cout << "\n? ";
-    // Everything such as ".", "," puts cin in error state, thus
-    // require  clear.
-    cin.clear();
-    //"8.9" or  "94ybib" is not a cin error. Initialize w\ 8
-    // but leavs ".9" in stream, thus
-    // require  ignore.
-    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    cin >> coeff_max;
-  }
+  cout << "\nEnter second boundary";
+  tool::get_input(coeff_max, std::cin);
 
   // Generation
   mt19937 gen;  // generatore dei coeff
@@ -112,8 +88,8 @@ void tool::rand_to_vec(NZVector<double>& vec, long size)
   }
 
   for (long i{0}; i < size; ++i) {
-    double real{dis_coeff(gen)};
-    vec.push_back(real);
+    double val{dis_coeff(gen)};
+    vec.push_back(val);
   }
 }
 
@@ -127,49 +103,15 @@ void tool::rand_to_vec(NZVector<complex<double>>& vec,
   vec.reserve(size);
 
   // Boundaries User Input
-  double coeff_min = 0., coeff_max = 0.;
+  double coeff_min{0.}, coeff_max{0.};
 
   cout << "\nCoefficients are gonna be generated uniformly between two real "
           "numbers"
-       << "\nEnter first boundary"
-       << "\n? ";
-  cin >> coeff_min;
+       << "\nEnter first boundary";
+  tool::get_input(coeff_min, std::cin);
 
-  while (!cin) {
-    if (cin.eof()) {
-      cerr << "Input stream closed\n";
-      exit(EXIT_FAILURE);  //?
-    }
-    cout << "\n? ";
-    cin.clear();  // Everything such as ".", "," put cin in error state, thus
-                  // require  clear.
-    cin.ignore(std::numeric_limits<std::streamsize>::max(),
-               '\n');  //"8.9" or  "94ybib" is not a cin error. Initialize w\ 8
-                       // but leavs ".9" in stream, thus
-                       // require  ignore.
-
-    cin >> coeff_min;
-  }
-
-  cout << "\nEnter second boundary"
-       << "\n? ";
-  cin >> coeff_max;
-
-  while (!cin) {
-    if (cin.eof()) {
-      cerr << "Input stream closed\n";
-      exit(EXIT_FAILURE);  //?
-    }
-    cout << "\n? ";
-    cin.clear();  // Everything such as ".", "," put cin in error state, thus
-                  // require  clear.
-    cin.ignore(std::numeric_limits<std::streamsize>::max(),
-               '\n');  //"8.9" or  "94ybib" is not a cin error. Initialize w\ 8
-                       // but leavs ".9" in stream, thus
-                       // require  ignore.
-
-    cin >> coeff_max;
-  }
+  cout << "\nEnter second boundary";
+  tool::get_input(coeff_max, std::cin);
 
   // Generation
   mt19937 gen;  // generatore dei coeff

@@ -1,6 +1,8 @@
 #include <algorithm>
+#include <concepts>
 #include <iostream>
 #include <iterator>
+#include <type_traits>
 #include <vector>
 #include "../inc/NZVector.hpp"
 #include "../inc/tool.hpp"
@@ -56,8 +58,77 @@ void NZVector<T>::set(const size_t pos, const T& val)
     throw out_of_range("NZVector::set: pos is not referred to any value");
 
   const long pos_nonzero{this->plain_to_nonzero(pos)};
-  if (pos_nonzero != -1) {
-    // 'pos' corrisponde a un valore non nullo
+
+  if (pos_nonzero == -1) {
+    if (!tool::is_zero(val)) {
+      // clog << "\nnz->0";
+      long pos_insert{0};
+      // Devo inserire 'pos' prima degli indici di cui è minore e dopo quelli
+      // di cui è maggiore.
+      // Alla stessa posizione inserisco 'val'.
+      for (size_t idx : idx_) {
+        if (pos < idx) break;
+        ++pos_insert;
+      }
+      idx_.insert(idx_.cbegin() + pos_insert, pos);
+      val_.insert(val_.cbegin() + pos_insert, val);
+    } else /*clog << "\n0->0"*/
+      ;    // sostituisco 0 con 0
+
+  } else if (tool::is_zero(val)) {
+    // clog << "\n0->nz";
+    // Elimino dal vettore il valore precedente del coefficiente e il suo
+    // indice
+    // '-1' perché rend punta la posizione precedente la prima
+    idx_.erase(idx_.cbegin() + pos_nonzero);
+    val_.erase(val_.cbegin() + pos_nonzero);
+  } else {
+    // clog << "\nnz->nz";
+    // Cambio valore del coefficiente
+    *(val_.begin() + pos_nonzero) = val;
+  }
+}
+
+// 'action' deve prendere un solo argomento per riferimento, altrimenti il
+//  valore del coefficiente che si vuole modificare diventa 0.
+template <class T>
+template <std::invocable<T&> X>
+void NZVector<T>::set(const size_t pos, X action)
+{
+  // 'pos' è negativo o maggiore uguale dell'indice di controllo, i.e. l'ultimo
+  // indice contenuto in 'idx_'
+  if (pos >= this->size())
+    throw out_of_range("NZVector::set: pos is not referred to any value");
+
+  T val{0.};
+  const long pos_nonzero{this->plain_to_nonzero(pos)};
+
+  if (pos_nonzero == -1) {  // pos non è presente nnell'elenco degli indici
+                            // ovvero corrisponde a un valore zero
+    action(val);
+
+    if (!tool::is_zero(val)) {  // 'val' diverso da zero
+      // clog << "\nnz->0";
+      long pos_insert = 0;
+      // Devo inserire 'pos' prima degli indici di cui è minore e dopo quelli
+      // di cui è maggiore.
+      // Alla stessa posizione inserisco 'val'.
+      for (size_t idx : idx_) {
+        if (idx > pos) break;
+        ++pos_insert;
+      }
+      idx_.insert(idx_.begin() + pos_insert, pos);
+      val_.insert(val_.begin() + pos_insert, val);
+    } else  /*clog << "\n0->0"*/
+      ;     // sostituisco 0 con 0
+  } else {  // 'pos' è presente nell'elenco degli indici, ovvero corrisponde a
+            // un valore non nullo
+    // Non faccio eseguire action direttamente sull'elemento del vettore 'val_'
+    // Indipendentemente dalla complessità di action, accedo al vettore solo
+    // per leggere e scrivere il valore.
+    val = *(val_.begin() + pos_nonzero);
+    action(val);
+    // Verifica come action modifica il valore
     if (tool::is_zero(val)) {
       // clog << "\n0->nz";
       // Elimino dal vettore il valore precedente del coefficiente e il suo
@@ -67,30 +138,16 @@ void NZVector<T>::set(const size_t pos, const T& val)
       val_.erase(val_.cbegin() + pos_nonzero);
     } else {
       // clog << "\nnz->nz";
-      // Cambio valore del coefficiente
       *(val_.begin() + pos_nonzero) = val;
     }
-  } else if (!tool::is_zero(val)) {
-    // clog << "\nnz->0";
-    long pos_insert{0};
-    // Devo inserire 'pos' prima degli indici di cui è minore e dopo quelli
-    // di cui è maggiore.
-    // Alla stessa posizione inserisco 'val'.
-    for (size_t idx : idx_) {
-      if (pos < idx) break;
-      ++pos_insert;
-    }
-    idx_.insert(idx_.cbegin() + pos_insert, pos);
-    val_.insert(val_.cbegin() + pos_insert, val);
-  } else /*clog << "\n0->0"*/
-    ;    // sostituisco 0 con 0
+  }
 }
 
 template <class T>
 void NZVector<T>::reserve(const size_t capacity)
 {
-  // idx_ contiene un indice di controllo
   this->val_.reserve(capacity);
+  // idx_ contiene un indice di controllo
   this->idx_.reserve(capacity + 1);
 }
 
@@ -165,7 +222,7 @@ long NZVector<T>::plain_to_nonzero(const size_t pos) const
 {
   // 'pos' è negativo o maggiore uguale dell'indice di controllo
   if (pos >= this->size())
-    throw out_of_range("NZVector::at: index can't be greater than size");
+    throw out_of_range("NZVector::at: pos is not referred to any value");
 
   // Cerco 'pos' nell'elenco degli indici 'idx_'.
   // A causa dello schema di storage, nel vettore 'idx_' un indice qualsiasi
@@ -176,11 +233,10 @@ long NZVector<T>::plain_to_nonzero(const size_t pos) const
   // 'pos' che occurebbe nell'elenco esteso, piuttosto che all'inizio di idx_.
   // Questo giustifica l'uso degli iteratori inversi.
   // ALTRIMENTI sono costretto a cercare lungo tutto l'elenco degli indici.
-  // 'pos+1' perchè pos è un indice, size è una dimensione
   // '-1' perché 'crend' punta la posizione precedente la prima e il valore
   // zero di 'pos' identifica la prima posizione.
   std::reverse_iterator<std::vector<long>::const_iterator> reverse_it;
-  if (pos + 1 < idx_.size())
+  if (pos < idx_.size())
     reverse_it = find(idx_.crend() - pos - 1, idx_.crend(), pos);
   else
     reverse_it = find(idx_.crbegin(), idx_.crend(), pos);
