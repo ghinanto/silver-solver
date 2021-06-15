@@ -2,3 +2,6 @@
 - testare NZV::set. 
 - Implementare NZV::at usando plain_to_nonzero.
 - testare plain_to_nonzero
+14 Giugno
+- Implementare file_to_vec
+- Implementare vec_to_file
