@@ -37,26 +37,38 @@ int main()
       case TEST: {
         NZVector<complex<double>> a;
         NZVector<complex<double>> b(a);
-        NZVector<complex<double>> c(move(a));
+        NZVector<double> c;
         NZVector<double> r;
-        string s;
-        tool::get_input(s);
-        cout << s << '\n';
-        tool::rand_to_vec(b, 50, 0);
-        for (int i = 0; i < 10; ++i) b.push_back(0.);
-        b.push_back({9., 5.});
-        b.set(0, 0.);
-        cout << "\nb[0] = " << b.at(0) << "\nb[60] = " << b.at(60) << "\n"
-             << '\n';
-        b.print();
+        /*         string s;
+                tool::get_input(s);
+                cout << s << '\n';
+                tool::rand_to_vec(b, 4, 0);
+                for (int i = 0; i < 10; ++i) b.push_back(0.);
+                b.push_back({9., 5.});
+                b.set(0, 0.);
+                cout << "\nb[0] = " << b.at(0) << "\nb[3] = " << b.at(3) << "\n"
+                     << '\n';
+                b.print();
 
-        b.set(0, {4., 6.});
-        cout << "\nb[0] = " << b.at(0) << "\nb[60] = " << b.at(60) << '\n';
-        b.print();
+                b.set(0, {4., 6.});
+                cout << "\nb[0] = " << b.at(0) << "\nb[3] = " << b.at(3) <<
+           '\n'; b.print();
 
-        b.set(0, [](complex<double>& val) { val = {56., 87.4}; });
-        cout << "\nb[0] = " << b.at(0) << "\nb[60] = " << b.at(60) << '\n';
-        b.print();
+                b.set(0, [](complex<double>& val) { val = {56., 87.4}; });
+                cout << "\nb[0] = " << b.at(0) << "\nb[3] = " << b.at(3) <<
+           '\n'; tool::rand_to_vec(c, 4);
+         */
+        std::ifstream in_file("../firstfileever", std::ios_base::in);
+        std::string line;
+        while (std::getline(in_file, line)) tool::string_to_vec(line, a);
+        a.print();
+
+        /*         tool::vec_to_string(b, out_string);
+                for (long i{0}; i < 5; ++i) {
+                  out_file << out_string.str();
+                  out_file << '\n';
+                }
+         */
         // NZVector<double> a;
         // NZVector<double> b(a);
         // NZVector<double> c(move(a));

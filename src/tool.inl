@@ -1,12 +1,14 @@
 #include <cmath>    // abs(double)
 #include <complex>  // abs(complex)
+#include <filesystem>
+//#include <fstream>
 #include <iostream>
 #include <iterator>
 #include <limits>
 #include <string>
-#include <tuple>
 #include <vector>
 #include "../inc/tool.hpp"
+namespace fs = std::filesystem;
 
 template <class T>
 void tool::get_input(T& variable, std::istream& input, std::ostream& output)
@@ -144,3 +146,60 @@ void tool::rand_to_vec(NZVector<std::complex<double>>& vec,
     vec.push_back({real, imag});
   }
 }
+
+template <class T>
+void tool::vec_to_file(const NZVector<T>& vec,
+                       const std::string& file_name,
+                       std::ios mode)
+{
+  std::ofstream out_file(file_name, mode);
+
+  if (!out_file)
+    throw std::ios_base::failure("File " + file_name + " could not be opened");
+
+  std::ostringstream ss;
+  tool::vec_to_string(vec, ss);
+  out_file << ss.str();
+}
+
+template <class T>
+void tool::vec_to_file(const NZVector<T>& vec, std::ofstream& out_file)
+{
+  std::ostringstream ss;
+  tool::vec_to_string(vec, ss);
+  out_file << ss.str();
+}
+
+template <class T>
+void tool::vec_to_string(const NZVector<T>& vec, std::ostringstream& out_string)
+{
+  for (long i{0}; i < vec.size(); ++i) {
+    out_string << std::scientific << std::left;
+    out_string.precision(4);
+    out_string << std::setw(26) << vec.at(i);
+  }
+}
+
+template <class T>
+void tool::string_to_vec(std::istringstream& in_string, NZVector<T>& vec)
+{
+  T val;
+  while (in_string >> val) vec.push_back(val);
+}
+
+template <class T>
+void tool::string_to_vec(const std::string& in_string, NZVector<T>& vec)
+{
+  T val;
+  std::istringstream ss;
+  ss.str(in_string);
+  while (ss >> val) vec.push_back(val);
+}
+
+/* template <class T>
+void tool::string_to_vec(const std::string& str, NZVector<T>& vec)
+{
+  std::istringstream in_line(str, std::ios::in);
+  T val;
+  while (in_line >> val) vec.push_back(val);
+} */
