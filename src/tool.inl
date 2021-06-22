@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
+#include <random>
 #include <string>
 #include <vector>
 #include "../inc/tool.hpp"
@@ -42,38 +43,38 @@ bool tool::is_zero(const T& value)
   return false;
 }
 
-template <>
-bool tool::is_zero<std::complex<double>>(const std::complex<double>& value)
+// Quando il metodo solve viene chiamato su una matrice a valori complessi, i
+// calcoli vengono eseguiti sull'equivalente reale. Perciò quando chiamo is_zero
+// voglio verificare che le componenti siano nulle.
+template <class T>
+bool tool::is_zero(const std::complex<T>& value)
 {
-  if (std::abs(value.real()) < std::numeric_limits<double>::epsilon() &&
-      std::abs(value.imag()) < std::numeric_limits<double>::epsilon())
+  if (std::abs(value.real()) < std::numeric_limits<T>::epsilon() &&
+      std::abs(value.imag()) < std::numeric_limits<T>::epsilon())
     return true;
   return false;
 }
 
-void tool::rand_to_vec(NZVector<double>& vec, long size)
+// Restituendo il vec per copia, al compilatore viene richiesto di realizzare
+// l'ottimizzazione di elidere la copia (NRVO). Perciò non è un problema
+// restituire grandi vettori.
+template <std::floating_point T>
+NZVector<T> tool::rand_to_vec(std::size_t size, T coeff_min, T coeff_max)
 {
-  if (size < 0)
-    throw std::invalid_argument(
-        "rand_to_vec: negative amount of rows or columns");
-  vec.clear();
-  vec.reserve(size);
+  std::clog << "\nA CASO\n";
+  /*   std::cout
+        << "\nCoefficients are gonna be generated uniformly between two real "
+           "numbers"
+        << "\nEnter first boundary";
 
-  // Boundaries User Input
-  double coeff_min{0.}, coeff_max{0.};
+    tool::get_input(coeff_min, std::cin);
 
-  std::cout
-      << "\nCoefficients are gonna be generated uniformly between two real "
-         "numbers"
-      << "\nEnter first boundary";
-  tool::get_input(coeff_min, std::cin);
-
-  std::cout << "\nEnter second boundary";
-  tool::get_input(coeff_max, std::cin);
-
+    std::cout << "\nEnter second boundary";
+    tool::get_input(coeff_max, std::cin);
+   */
   // Generation
   std::mt19937 gen;  // generatore dei coeff
-  std::uniform_real_distribution<double> dis_coeff(coeff_min, coeff_max);
+  std::uniform_real_distribution<T> dis_coeff(coeff_min, coeff_max);
   std::uniform_int_distribution<short> dis_coin(0, 100);
 
   // eseguo seed, fornisco alternativa sicura se primo metodo(migliore) non
@@ -91,37 +92,35 @@ void tool::rand_to_vec(NZVector<double>& vec, long size)
     gen.seed(seed_timer);
   }
 
+  NZVector<T> vec(size);
   for (long i{0}; i < size; ++i) {
-    double val{dis_coeff(gen)};
+    T val{dis_coeff(gen)};
     vec.push_back(val);
   }
+  return vec;
 }
 
-void tool::rand_to_vec(NZVector<std::complex<double>>& vec,
-                       long size,
-                       short complex_on_tot)
+// Restituendo il vec per copia, al compilatore viene richiesto di realizzare
+// l'ottimizzazione di elidere la copia (NRVO). Perciò non è un problema
+// restituire grandi vettori.
+template <std::floating_point T>
+NZVector<std::complex<T>> tool::rand_to_vec(size_t size,
+                                            short complex_on_tot,
+                                            T coeff_min,
+                                            T coeff_max)
 {
-  if (size < 0)
-    throw std::invalid_argument(
-        "rand_to_vec: negative amount of rows or columns");
-  vec.clear();
-  vec.reserve(size);
+  /*   std::cout
+        << "\nCoefficients are gonna be generated uniformly between two real "
+           "numbers"
+        << "\nEnter first boundary";
+    tool::get_input(coeff_min, std::cin);
 
-  // Boundaries User Input
-  double coeff_min{0.}, coeff_max{0.};
-
-  std::cout
-      << "\nCoefficients are gonna be generated uniformly between two real "
-         "numbers"
-      << "\nEnter first boundary";
-  tool::get_input(coeff_min, std::cin);
-
-  std::cout << "\nEnter second boundary";
-  tool::get_input(coeff_max, std::cin);
-
+    std::cout << "\nEnter second boundary";
+    tool::get_input(coeff_max, std::cin);
+   */
   // Generation
   std::mt19937 gen;  // generatore dei coeff
-  std::uniform_real_distribution<double> dis_coeff(coeff_min, coeff_max);
+  std::uniform_real_distribution<T> dis_coeff(coeff_min, coeff_max);
   std::uniform_int_distribution<short> dis_coin(0, 100);
 
   // eseguo seed, fornisco alternativa sicura se primo metodo(migliore) non
@@ -139,12 +138,14 @@ void tool::rand_to_vec(NZVector<std::complex<double>>& vec,
     gen.seed(seed_timer);
   }
 
+  NZVector<std::complex<T>> vec(size);
   for (long i{0}; i < size; ++i) {  // complex
-    double real{dis_coeff(gen)};
-    double imag{0.};
+    T real{dis_coeff(gen)};
+    T imag{0.};
     if (dis_coin(gen) < complex_on_tot) imag = dis_coeff(gen);
     vec.push_back({real, imag});
   }
+  return vec;
 }
 
 template <class T>
@@ -178,6 +179,18 @@ void tool::vec_to_string(const NZVector<T>& vec, std::ostringstream& out_string)
     out_string.precision(4);
     out_string << std::setw(26) << vec.at(i);
   }
+}
+
+template <class T>
+std::string tool::vec_to_string(const NZVector<T>& vec)
+{
+  std::ostringstream out_string;
+  for (long i{0}; i < vec.size(); ++i) {
+    out_string << std::scientific << std::left;
+    out_string.precision(4);
+    out_string << std::setw(26) << vec.at(i);
+  }
+  return out_string.str();
 }
 
 template <class T>

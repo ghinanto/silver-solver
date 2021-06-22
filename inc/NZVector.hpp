@@ -16,18 +16,24 @@ class NZVector
   // Costruttori
   NZVector();
   NZVector(const NZVector&);
-  NZVector(NZVector&&);
+  // noexcept necessario in modo che quando un vector<NZVector> (i.e. Matrix)
+  // cresce e rialloca memoria, chiama il costruttore di move e non quello di
+  // copia
+  NZVector(NZVector&&) noexcept;
   NZVector(const std::initializer_list<T>&);
+  NZVector(std::size_t);
+  // NZVector(std::ifstream&);
+  NZVector(std::string const&);
   // Operatore uguale
   NZVector& operator=(const NZVector&);
   NZVector& operator=(NZVector&&);
   NZVector& operator=(const std::initializer_list<T>&);
 
   // imposta capacità del vettore
-  void reserve(const size_t);
+  void reserve(const std::size_t);
   // Cambia il valore del coefficiente che corrisponde all'indice 'pos'
   // nell'elenco esteso
-  void set(const size_t, const T&);
+  void set(const std::size_t, const T&);
   // Modifica il valore del coefficiente che corrisponde all'indice 'pos'
   // nell'elenco esteso
   // X corrisponde al tipo di un puntatore a funzione, una espressione lambda
@@ -36,20 +42,32 @@ class NZVector
   // es. double correction{3.14};
   //     vec.set(0, [&](double& val){ val += correction});
   template <std::invocable<T&> X>
-  void set(const size_t pos, X);
+  void set(const std::size_t pos, X);
+  // Riempie il vettore con i valori contenuti nel file 'file_name'
+  void set(std::string const& file_name);
   // Aggiunge valori alla fine del vettore
   void push_back(const T&);
   // cancella il contenuto del vettore. lascia invariata la capacità
   void clear();
 
+  //
+  long nonzero_to_plain(const std::size_t) const;
   // Restituisce il valore che corrisponde all'indice 'pos' nell'elenco esteso
-  T at(const size_t pos) const;
+  T at(const std::size_t pos) const;
+  // Restituisce il valore che corrisponde all'indice 'pos' nell'elenco dei
+  // valori
+  T at_nz(const std::size_t) const;
   // Restituisce la lunghezza dell'elenco esteso
-  size_t size() const;
+  std::size_t size() const;
+  // Restituisce la lunghezza dell'elenco dei valori
+  std::size_t size_nz() const;
+  // Restituisce il massimo numero di valori non nulli che il vettore può
+  // contenere
+  std::size_t max_size_nz() const;
+  // Restituisce la capacità del vettore
+  std::size_t capacity_nz() const;
   // Scrive sull'output l'elenco degli indici e l'elenco dei valori
   void print(std::ostream& = std::cout) const;
-  // Scrive sull'output l'elenco esteso
-  void print_plain(std::ostream& = std::cout) const;
   // Definizione necessaria in modo che ogni specializzazione della classe
   // definisca il proprio operatore
   /*   friend ostream& operator<<(ostream& out, const NZVector&)
@@ -71,7 +89,7 @@ class NZVector
   //     vettore.plain_to_non_zero(3) == 2
   // L'indice di controllo non corrisponde a nessun coefficiente
   //     vettore.plain_to_non_zero(6) == -1
-  long plain_to_nonzero(const size_t) const;
+  long plain_to_nonzero(const std::size_t) const;
   // Individua l'indice 'pos' nell'elenco degli indici idx_ e restituisce la
   // posizione in cui si trova.
   // Se 'pos' non è presente nell'elenco degli indici, restituisce -1

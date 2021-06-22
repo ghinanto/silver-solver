@@ -16,23 +16,36 @@ NZVector<T>::NZVector()
 template <class T>
 NZVector<T>::NZVector(const NZVector& that) : idx_(that.idx_), val_(that.val_)
 {
-  std::clog << "\nCostruisco per copia\n";
+  std::clog << "\nNZV: Costruisco per copia\n";
 }
 
 template <class T>
-NZVector<T>::NZVector(NZVector&& that)
+NZVector<T>::NZVector(NZVector&& that) noexcept
     : idx_(move(that.idx_)), val_(move(that.val_))
 {
-  std::clog << "\nCostruisco spostando\n";
+  std::clog << "\nNZV: Costruisco spostando\n";
   // L'elenco degli indici deve contenere almeno l'indice di controllo
   that.idx_.assign({0});
+}
+
+template <class T>
+NZVector<T>::NZVector(const std::initializer_list<T>& list)
+{
+  this->reserve(list.size());
+  for (const T& val : list) this->push_back(val);
+}
+
+template <class T>
+NZVector<T>::NZVector(std::size_t new_cap)
+{
+  val_.reserve(new_cap);
+  idx_.reserve(new_cap + 1);
 }
 
 template <class T>
 NZVector<T>& NZVector<T>::operator=(const NZVector& that)
 {
   std::clog << "\nAssegno per copia\n";
-
   idx_ = that.idx_;
   val_ = that.val_;
   return *this;
@@ -50,7 +63,16 @@ NZVector<T>& NZVector<T>::operator=(NZVector&& that)
 }
 
 template <class T>
-void NZVector<T>::set(const size_t pos, const T& val)
+NZVector<T>& NZVector<T>::operator=(const std::initializer_list<T>& list)
+{
+  this->clear();
+  this->reserve(list.size());
+  for (const T& val : list) this->push_back(val);
+  return *this;
+}
+
+template <class T>
+void NZVector<T>::set(const std::size_t pos, const T& val)
 {
   // 'pos' è negativo o maggiore uguale dell'indice di controllo, i.e. l'ultimo
   // indice contenuto in 'idx_'
@@ -60,13 +82,13 @@ void NZVector<T>::set(const size_t pos, const T& val)
   const long pos_nonzero{this->plain_to_nonzero(pos)};
 
   if (pos_nonzero == -1) {
-    if (!tool::is_zero(val)) {
+    if (not tool::is_zero(val)) {
       // clog << "\nnz->0";
       long pos_insert{0};
       // Devo inserire 'pos' prima degli indici di cui è minore e dopo quelli
       // di cui è maggiore.
       // Alla stessa posizione inserisco 'val'.
-      for (size_t idx : idx_) {
+      for (std::size_t idx : idx_) {
         if (pos < idx) break;
         ++pos_insert;
       }
@@ -93,7 +115,7 @@ void NZVector<T>::set(const size_t pos, const T& val)
 //  valore del coefficiente che si vuole modificare diventa 0.
 template <class T>
 template <std::invocable<T&> X>
-void NZVector<T>::set(const size_t pos, X action)
+void NZVector<T>::set(const std::size_t pos, X action)
 {
   // 'pos' è negativo o maggiore uguale dell'indice di controllo, i.e. l'ultimo
   // indice contenuto in 'idx_'
@@ -107,13 +129,13 @@ void NZVector<T>::set(const size_t pos, X action)
                             // ovvero corrisponde a un valore zero
     action(val);
 
-    if (!tool::is_zero(val)) {  // 'val' diverso da zero
+    if (not tool::is_zero(val)) {  // 'val' diverso da zero
       // clog << "\nnz->0";
       long pos_insert = 0;
       // Devo inserire 'pos' prima degli indici di cui è minore e dopo quelli
       // di cui è maggiore.
       // Alla stessa posizione inserisco 'val'.
-      for (size_t idx : idx_) {
+      for (std::size_t idx : idx_) {
         if (idx > pos) break;
         ++pos_insert;
       }
@@ -144,11 +166,13 @@ void NZVector<T>::set(const size_t pos, X action)
 }
 
 template <class T>
-void NZVector<T>::reserve(const size_t capacity)
+void NZVector<T>::reserve(const std::size_t new_cap)
 {
-  this->val_.reserve(capacity);
-  // idx_ contiene un indice di controllo
-  this->idx_.reserve(capacity + 1);
+  if (this->capacity_nz() > new_cap) {
+    this->val_.reserve(new_cap);
+    // idx_ contiene un indice di controllo
+    this->idx_.reserve(new_cap + 1);
+  }
 }
 
 template <class T>
@@ -159,7 +183,7 @@ void NZVector<T>::clear()
 }
 
 template <class T>
-T NZVector<T>::at(const size_t pos) const
+T NZVector<T>::at(const std::size_t pos) const
 {
   // 'pos' è negativo o maggiore uguale dell'indice di controllo
   if (pos >= this->size())
@@ -172,37 +196,56 @@ T NZVector<T>::at(const size_t pos) const
   return val_.at(pos_nonzero);  // throw out_of_range
 };
 
+template <class T>
+T NZVector<T>::at_nz(const std::size_t pos_nz) const
+{
+  return val_.at(pos_nz);
+}
+
 // L'ultimo elemento dell'elenco degli indici è l'indice di controllo.
 // Non corrisponde a nessun valore ed è pari alla lunghezza del vettore esteso.
 template <class T>
-size_t NZVector<T>::size() const
+std::size_t NZVector<T>::size() const
 {
   return *idx_.rbegin();
+}
+
+template <class T>
+std::size_t NZVector<T>::size_nz() const
+{
+  return val_.size();
+}
+
+template <class T>
+std::size_t NZVector<T>::max_size_nz() const
+{
+  return val_.max_size();
+}
+
+template <class T>
+std::size_t NZVector<T>::capacity_nz() const
+{
+  return val_.capacity();
 }
 
 template <class T>
 void NZVector<T>::print(std::ostream& out) const
 {
   long i{0};
-  std::cout << "\nidx_:\n{";
-  for (const auto& idx : idx_) out << "\n  [" << i++ << "] = " << idx;
-  std::cout << "\n}";
+  out << "\nidx_:\n{";
+  for (const long& idx : idx_) out << "\n  [" << i++ << "] = " << idx;
+  out << "\n}";
 
   i = 0;
-  std::cout << "\nval_:\n{";
-  for (const auto& val : val_) out << "\n  [" << i++ << "] = " << val;
-  std::cout << "\n}";
-}
-
-template <class T>
-void NZVector<T>::print_plain(std::ostream&) const
-{
+  out << "\nval_:\n{";
+  for (const T& val : val_) out << "\n  [" << i++ << "] = " << val;
+  out << "\n}";
 }
 
 template <class T>
 void NZVector<T>::push_back(const T& value)
 {
-  if (!tool::is_zero(value)) {
+  if (not tool::is_zero(value)) {
     // l'indice di controllo procede
     idx_.push_back(*idx_.rbegin());
     val_.push_back(value);
@@ -214,7 +257,7 @@ void NZVector<T>::push_back(const T& value)
 template <class T>
 NZVector<T>::~NZVector()
 {
-  std::clog << "\nDistruggo\n";
+  std::clog << "\nNZV: Distruggo\n";
 }
 
 template <class T>
@@ -244,4 +287,10 @@ long NZVector<T>::plain_to_nonzero(const size_t pos) const
   // La distanza tra il primo elemento e crend() è 1. Quindi necessario -1
   // perchè il primo elemento è puntato da idx_.rbegin()
   return std::distance(reverse_it, idx_.crend()) - 1;
+}
+
+template <class T>
+long NZVector<T>::nonzero_to_plain(const std::size_t pos_nz) const
+{
+  return idx_.at(pos_nz);
 }

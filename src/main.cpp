@@ -6,15 +6,16 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>  //ostream_iterator()
+#include <limits>
 #include <random>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>  // vector class-template definition
+#include "../inc/Matrix.hpp"
 #include "../inc/NZVector.hpp"
 #include "../inc/tool.hpp"
 
-using namespace std;
 namespace fs = std::filesystem;
 
 enum exe_request { FILE_INPUT = 1, RANDOM_INPUT, MANUAL, TEST, END };
@@ -26,6 +27,26 @@ int main()
   while (user_choice != END) {
     switch (user_choice) {
       case FILE_INPUT: {
+        std::string terms_file;
+        std::string matrix_file;
+        std::cout << "\nInserire il nome del file che contiene i TERMINI NOTI, "
+                     "poi premere invio."
+                  << "\nPosizione attuale: " << fs::current_path()
+                  << "\nSe i file si trovano in un'altra posizione, includere "
+                     "il percorso assoluto o relativo.";
+        tool::get_input(terms_file);
+
+        std::ifstream terms_fstream(terms_file);
+        if (!terms_fstream)
+          throw std::ios_base::failure("\nFile " + terms_file +
+                                       " could not be opened");
+
+        std::cout
+            << "\nInserire il nome del file che contiene i coefficienti della "
+               "MATRICE, poi premere invio"
+            << "\nPosizione attuale: " << fs::current_path()
+            << "\nSe i file si trovano in un'altra posizione, includere "
+               "il percorso assoluto o relativo";
         break;
       }
       case RANDOM_INPUT: {
@@ -35,52 +56,27 @@ int main()
         break;
       }
       case TEST: {
-        NZVector<complex<double>> a;
-        NZVector<complex<double>> b(a);
-        NZVector<double> c;
-        NZVector<double> r;
-        /*         string s;
-                tool::get_input(s);
-                cout << s << '\n';
-                tool::rand_to_vec(b, 4, 0);
-                for (int i = 0; i < 10; ++i) b.push_back(0.);
-                b.push_back({9., 5.});
-                b.set(0, 0.);
-                cout << "\nb[0] = " << b.at(0) << "\nb[3] = " << b.at(3) << "\n"
-                     << '\n';
-                b.print();
+        Matrix<std::complex<double>> mat("../txt/firstfileever");
+        mat.to_file("../txt/m_rand.txt");
 
-                b.set(0, {4., 6.});
-                cout << "\nb[0] = " << b.at(0) << "\nb[3] = " << b.at(3) <<
-           '\n'; b.print();
+        NZVector<std::complex<double>> c_terms({{2.}, {0., 3.}});
 
-                b.set(0, [](complex<double>& val) { val = {56., 87.4}; });
-                cout << "\nb[0] = " << b.at(0) << "\nb[3] = " << b.at(3) <<
-           '\n'; tool::rand_to_vec(c, 4);
-         */
-        std::ifstream in_file("../firstfileever", std::ios_base::in);
-        std::string line;
-        while (std::getline(in_file, line)) tool::string_to_vec(line, a);
-        a.print();
-
-        /*         tool::vec_to_string(b, out_string);
-                for (long i{0}; i < 5; ++i) {
-                  out_file << out_string.str();
-                  out_file << '\n';
-                }
-         */
-        // NZVector<double> a;
-        // NZVector<double> b(a);
-        // NZVector<double> c(move(a));
-
-        /*         b = c;
-                c = move(b);
-                c.push_back({2, 3});
-                c.push_back({0, 1});
-                c.print();
-                a.print();
-                b.print();
-         */
+        std::vector<std::vector<std::complex<double>>> sol_set;
+        std::vector<long> sol_idx;
+        // mat.print();
+        // c_terms.print();
+        std::tie(sol_set, sol_idx) = mat.solve(c_terms);
+        std::clog << "\nSOL_IDX SIZE = " << sol_idx.size()
+                  << "\nSOL_SET SIZE = " << sol_set.size();
+        int i{0};
+        for (const auto& sol : sol_set) {
+          std::cout << "\nx[" << sol_idx.at(i++) << "]:\n";
+          for (const auto& coeff : sol) {
+            std::cout << coeff << ", ";
+          }
+        }
+        std::clog << "\nSOL_IDX:\n";
+        for (const long& idx : sol_idx) std::clog << idx;
         break;
       }
     }
@@ -96,22 +92,22 @@ unsigned short GetRequest()
 {
   short user_choice;
   // Mostra minima veste grafica al menu
-  cout << "\n\033[1;41;43;7m  Silver Solver\033[41;43;7m               "
-          "      \033[0m\n"
-       //  << "\033[41;43m                                    \033[0m\n"
-       << "\033[41;43m  \033[41;43mEnter your choice                 "
-          "\033[0m\n"
-       << "\033[41;43m  [1]\033[1;41;43m Retrieve data from files      "
-          "\033[0m\n"
-       << "\033[41;43m  [2]\033[1;41;43m Generate random coefficients  "
-          "\033[0m\n"
-       << "\033[41;43m  [3]\033[1;41;43m Manual                        "
-          "\033[0m\n"
-       << "\033[41;43m  [4]\033[1;41;43m Test                          "
-          "\033[0m\n"
-       << "\033[41;43m  [5]\033[1;41;43m Quit                          "
-          "\033[0m\n"
-       << "\033[41;43m                                    \033[0m\n";
+  std::cout << "\n\033[1;41;43;7m  Silver Solver\033[41;43;7m               "
+               "      \033[0m\n"
+            //  << "\033[41;43m                                    \033[0m\n"
+            << "\033[41;43m  \033[41;43mEnter your choice                 "
+               "\033[0m\n"
+            << "\033[41;43m  [1]\033[1;41;43m Retrieve data from files      "
+               "\033[0m\n"
+            << "\033[41;43m  [2]\033[1;41;43m Generate random coefficients  "
+               "\033[0m\n"
+            << "\033[41;43m  [3]\033[1;41;43m Manual                        "
+               "\033[0m\n"
+            << "\033[41;43m  [4]\033[1;41;43m Test                          "
+               "\033[0m\n"
+            << "\033[41;43m  [5]\033[1;41;43m Quit                          "
+               "\033[0m\n"
+            << "\033[41;43m                                    \033[0m\n";
 
   do
     tool::get_input(user_choice, std::cin);
