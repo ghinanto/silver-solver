@@ -43,8 +43,6 @@ class NZVector
   //     vec.set(0, [&](double& val){ val += correction});
   template <std::invocable<T&> X>
   void set(const std::size_t pos, X);
-  // Riempie il vettore con i valori contenuti nel file 'file_name'
-  void set(std::string const& file_name);
   // Aggiunge valori alla fine del vettore
   void push_back(const T&);
   // cancella il contenuto del vettore. lascia invariata la capacità

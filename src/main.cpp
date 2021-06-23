@@ -34,12 +34,9 @@ int main()
                   << "\nPosizione attuale: " << fs::current_path()
                   << "\nSe i file si trovano in un'altra posizione, includere "
                      "il percorso assoluto o relativo.";
-        tool::get_input(terms_file);
-
-        std::ifstream terms_fstream(terms_file);
-        if (!terms_fstream)
-          throw std::ios_base::failure("\nFile " + terms_file +
-                                       " could not be opened");
+        std::cout << "\n? ";
+        // Permette di gestire nomi di file che contengono spazi
+        std::getline(std::cin, terms_file);
 
         std::cout
             << "\nInserire il nome del file che contiene i coefficienti della "
@@ -47,6 +44,9 @@ int main()
             << "\nPosizione attuale: " << fs::current_path()
             << "\nSe i file si trovano in un'altra posizione, includere "
                "il percorso assoluto o relativo";
+        std::cout << "\n? ";
+        // Permette di gestire nomi di file che contengono spazi
+        std::getline(std::cin, matrix_file);
         break;
       }
       case RANDOM_INPUT: {

@@ -43,6 +43,21 @@ NZVector<T>::NZVector(std::size_t new_cap)
 }
 
 template <class T>
+NZVector<T>::NZVector(std::string const& file_name)
+{
+  std::ifstream in_file(file_name);
+  if (!in_file)
+    throw std::ios_base::failure("\nFile " + file_name +
+                                 " could not be opened");
+
+  std::string str_line;
+  while (std::getline(in_file, str_line)) {
+    if (not str_line.length()) continue;  // ignoro righe vuote
+    tool::string_to_vec(str_line, *this);
+  }
+}
+
+template <class T>
 NZVector<T>& NZVector<T>::operator=(const NZVector& that)
 {
   std::clog << "\nAssegno per copia\n";
