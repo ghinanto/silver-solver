@@ -8,6 +8,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include "../inc/NZVector.hpp"
 #include "../inc/tool.hpp"
 namespace fs = std::filesystem;
 
@@ -208,11 +209,3 @@ void tool::string_to_vec(const std::string& in_string, NZVector<T>& vec)
   ss.str(in_string);
   while (ss >> val) vec.push_back(val);
 }
-
-/* template <class T>
-void tool::string_to_vec(const std::string& str, NZVector<T>& vec)
-{
-  std::istringstream in_line(str, std::ios::in);
-  T val;
-  while (in_line >> val) vec.push_back(val);
-} */

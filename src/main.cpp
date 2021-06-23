@@ -25,10 +25,17 @@ int main()
 {
   unsigned short user_choice = GetRequest();
   while (user_choice != END) {
+    std::string terms_file;
+    std::string matrix_file;
+    std::string sol_file;
+    bool complex_field{false};
     switch (user_choice) {
       case FILE_INPUT: {
-        std::string terms_file;
-        std::string matrix_file;
+        std::cout << "\nIl sistema da risolvere ha coefficienti"
+                  << "\n [0] reali"
+                  << "\n [1] complessi";
+        tool::get_input(complex_field);
+
         std::cout << "\nInserire il nome del file che contiene i TERMINI NOTI, "
                      "poi premere invio."
                   << "\nPosizione attuale: " << fs::current_path()
@@ -47,6 +54,39 @@ int main()
         std::cout << "\n? ";
         // Permette di gestire nomi di file che contengono spazi
         std::getline(std::cin, matrix_file);
+
+        if (complex_field) {
+          NZVector<std::complex<double>> terms(terms_file);
+          Matrix<std::complex<double>> mat(matrix_file);
+          auto sol = mat.solve(terms);
+          auto& sol_set = std::get<0>(sol);
+          auto& sol_idx = std::get<1>(sol);
+
+          int i{0};
+          for (const auto& sol : sol_set) {
+            std::cout << "\nx[" << sol_idx.at(i++) << "]:\n";
+            for (const auto& coeff : sol) {
+              std::cout << coeff << ", ";
+            }
+          }
+        } else {
+          NZVector<double> terms(terms_file);
+          Matrix<double> mat(matrix_file);
+          auto sol = mat.solve(terms);
+          auto& sol_set = std::get<0>(sol);
+          auto& sol_idx = std::get<1>(sol);
+
+          int i{0};
+          for (const auto& sol : sol_set) {
+            std::cout << "\nx[" << sol_idx.at(i++) << "]:\n";
+            for (const auto& coeff : sol) {
+              std::cout << coeff << ", ";
+            }
+          }
+
+          if (not sol_set.size()) std::cout << "\nIl sistema non ha soluzione.";
+        }
+
         break;
       }
       case RANDOM_INPUT: {
@@ -92,22 +132,30 @@ unsigned short GetRequest()
 {
   short user_choice;
   // Mostra minima veste grafica al menu
-  std::cout << "\n\033[1;41;43;7m  Silver Solver\033[41;43;7m               "
-               "      \033[0m\n"
-            //  << "\033[41;43m                                    \033[0m\n"
-            << "\033[41;43m  \033[41;43mEnter your choice                 "
-               "\033[0m\n"
-            << "\033[41;43m  [1]\033[1;41;43m Retrieve data from files      "
-               "\033[0m\n"
-            << "\033[41;43m  [2]\033[1;41;43m Generate random coefficients  "
-               "\033[0m\n"
-            << "\033[41;43m  [3]\033[1;41;43m Manual                        "
-               "\033[0m\n"
-            << "\033[41;43m  [4]\033[1;41;43m Test                          "
-               "\033[0m\n"
-            << "\033[41;43m  [5]\033[1;41;43m Quit                          "
-               "\033[0m\n"
-            << "\033[41;43m                                    \033[0m\n";
+  std::cout
+      << "\n\033[1;41;43;7m  Silver Solver\033[41;43;7m                        "
+         "        "
+         "\033[0m\n"
+      //  << "\033[41;43m                                    \033[0m\n"
+      << "\033[41;43m  \033[41;43mScegliere un opzione                         "
+         "\033[0m\n"
+      << "\033[41;43m  [1]\033[1;41;43m Leggi coefficienti da file di testo    "
+         "  "
+         "\033[0m\n"
+      << "\033[41;43m  [2]\033[1;41;43m Genera coefficienti casuali            "
+         "  "
+         "\033[0m\n"
+      << "\033[41;43m  [3]\033[1;41;43m Manual                                 "
+         "  "
+         "\033[0m\n"
+      << "\033[41;43m  [4]\033[1;41;43m Test                                   "
+         "  "
+         "\033[0m\n"
+      << "\033[41;43m  [5]\033[1;41;43m Esci                                   "
+         "  "
+         "\033[0m\n"
+      << "\033[41;43m                                               "
+         "\033[0m\n";
 
   do
     tool::get_input(user_choice, std::cin);
