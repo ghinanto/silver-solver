@@ -2,7 +2,7 @@
 Risolve sistemi lineari qualsiasi a coefficienti reali o complessi.
 ## Dependencies
 Standard Library del C++.
-In particolare è ecessario g++-10 per utilizzare la concepts library.
+In particolare è necessario g++-10 per utilizzare la concepts library.
 Per installarlo su Ubuntu:
 ```
 sudo apt install gcc-10
