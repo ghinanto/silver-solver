@@ -4,9 +4,15 @@ Risolve sistemi lineari qualsiasi a coefficienti reali o complessi.
 Standard Library del C++.
 In particolare è ecessario g++-10 per utilizzare la concepts library.
 Per installarlo su Ubuntu:
+```
 sudo apt install gcc-10
+```
+Viene utilizzato Cmake per produrre i file di ninja, e ninja per compilare.
+Per installarli su Ubuntu:
+```
+sudo apt install cmake ninja-build
+```
 ## Build
-Viene utilizzato Cmake per produrre i file di ninja, e ninja per compilare. 
 Dalla top directory
 ```
 mkdir build
