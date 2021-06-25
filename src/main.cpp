@@ -1,3 +1,4 @@
+// Copyright 2021, Antonio Ghinassi, antonio.ghinassi@studio.unibo.it
 #include <algorithm>  // merge algorithm and copy
 #include <chrono>
 #include <complex>
@@ -274,26 +275,25 @@ unsigned short GetRequest()
   short user_choice;
   // Mostra minima veste grafica al menu
   std::cout << "\n\033[1;41;43;7m  Silver Solver\033[41;43;7m                "
-               "        "
-               "        "
+               "                "
                "\033[0m\n"
-            << "\033[41;43m  \033[41;43mScegliere un opzione                 "
+            << "\033[41;43m  \033[41;43mRisolutore di sistemi di equazioni "
+               "lineari.  "
+               "\033[0m\n"
+            << "\033[41;43m  \033[41;43m                                     "
                "        "
                "\033[0m\n"
             << "\033[41;43m  \033[41;43mScegliere un opzione                 "
                "        "
                "\033[0m\n"
             << "\033[41;43m  [1]\033[1;41;43m Leggi coefficienti da file di "
-               "testo    "
-               "  "
+               "testo      "
                "\033[0m\n"
             << "\033[41;43m  [2]\033[1;41;43m Genera coefficienti casuali    "
-               "        "
-               "  "
+               "          "
                "\033[0m\n"
             << "\033[41;43m  [3]\033[1;41;43m Esci                           "
-               "        "
-               "  "
+               "          "
                "\033[0m\n"
             << "\033[41;43m                                               "
                "\033[0m\n";

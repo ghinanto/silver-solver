@@ -1,3 +1,4 @@
+// Copyright 2021, Antonio Ghinassi, antonio.ghinassi@studio.unibo.it
 #ifndef TOOL_H
 #define TOOL_H
 

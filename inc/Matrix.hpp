@@ -1,3 +1,4 @@
+// Copyright 2021, Antonio Ghinassi, antonio.ghinassi@studio.unibo.it
 #ifndef MATRIX_HPP
 #define MATRIX_HPP
 

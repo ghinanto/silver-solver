@@ -1,3 +1,4 @@
+// Copyright 2021, Antonio Ghinassi, antonio.ghinassi@studio.unibo.it
 #ifndef NZVECTOR_HPP
 #define NZVECTOR_HPP
 

@@ -1,3 +1,4 @@
+// Copyright 2021, Antonio Ghinassi, antonio.ghinassi@studio.unibo.it
 #include <cmath>    // abs(double)
 #include <complex>  // abs(complex)
 #include <filesystem>
