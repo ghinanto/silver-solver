@@ -35,7 +35,7 @@ int main()
                                     std::ranges::range auto& sol_idx,
                                     std::ostream& out) {
       if (sol_set.size() == 0)
-        throw std::invalid_argument("Main::sol_out: Vector is empty");
+        throw std::invalid_argument("Main::sol_out: Il vettore è vuoto");
       std::size_t n_pars{sol_set.at(0).size() - 1};
       std::vector<long> pars_idx;
       pars_idx.reserve(n_pars);
@@ -93,8 +93,8 @@ int main()
 
       std::ofstream sol_fstream(sol_file);
       if (!sol_fstream)
-        throw std::ios_base::failure("File " + sol_file +
-                                     " could not be opened");
+        throw std::ios_base::failure("Non è stato possibile aprire il file " +
+                                     sol_file);
 
       sol_out(sol_set, sol_idx, sol_fstream);
     };
@@ -127,35 +127,40 @@ int main()
         // Permette di gestire nomi di file che contengono spazi
         std::getline(std::cin, matrix_file);
 
-        if (complex_field) {
-          NZVector<std::complex<double>> terms(terms_file);
-          Matrix<std::complex<double>> mat(matrix_file);
-          auto sol = mat.solve(terms);
-          auto& sol_set = std::get<0>(sol);
-          auto& sol_idx = std::get<1>(sol);
+        try {
+          if (complex_field) {
+            NZVector<std::complex<double>> terms(terms_file);
+            Matrix<std::complex<double>> mat(matrix_file);
+            auto sol = mat.solve(terms);
+            auto& sol_set = std::get<0>(sol);
+            auto& sol_idx = std::get<1>(sol);
 
-          if (not sol_set.size())
-            std::cout << "\nIl sistema non ha soluzione.";
-          else {
-            sol_out(sol_set, sol_idx, std::cout);
-            sol_to_file(sol_set, sol_idx);
+            if (not sol_set.size())
+              std::cout << "\nIl sistema non ha soluzione.";
+            else {
+              sol_out(sol_set, sol_idx, std::cout);
+              sol_to_file(sol_set, sol_idx);
+            }
+
+          } else {
+            NZVector<double> terms(terms_file);
+            Matrix<double> mat(matrix_file);
+            auto sol = mat.solve(terms);
+
+            auto& sol_set = std::get<0>(sol);
+            auto& sol_idx = std::get<1>(sol);
+
+            if (not sol_set.size())
+              std::cout << "\nIl sistema non ha soluzione.";
+            else {
+              sol_out(sol_set, sol_idx, std::cout);
+              sol_to_file(sol_set, sol_idx);
+            }
           }
-
-        } else {
-          NZVector<double> terms(terms_file);
-          Matrix<double> mat(matrix_file);
-          auto sol = mat.solve(terms);
-
-          auto& sol_set = std::get<0>(sol);
-          auto& sol_idx = std::get<1>(sol);
-
-          if (not sol_set.size())
-            std::cout << "\nIl sistema non ha soluzione.";
-          else {
-            sol_out(sol_set, sol_idx, std::cout);
-            sol_to_file(sol_set, sol_idx);
-          }
+        } catch (std::exception& e) {
+          std::cout << "\nErrore: " << e.what();
         }
+
         break;
       }
       case RANDOM_INPUT: {
@@ -212,42 +217,46 @@ int main()
         // Permette di gestire nomi di file che contengono spazi
         std::getline(std::cin, terms_file);
 
-        if (complex_field) {
-          NZVector<std::complex<double>> terms = tool::rand_to_vec(
-              rows, complex_on_tot, first_bound, second_bound);
-          Matrix<std::complex<double>> mat(
-              rows, cols, complex_on_tot, first_bound, second_bound);
-          auto sol = mat.solve(terms);
-          auto& sol_set = std::get<0>(sol);
-          auto& sol_idx = std::get<1>(sol);
+        try {
+          if (complex_field) {
+            NZVector<std::complex<double>> terms = tool::rand_to_vec(
+                rows, complex_on_tot, first_bound, second_bound);
+            Matrix<std::complex<double>> mat(
+                rows, cols, complex_on_tot, first_bound, second_bound);
+            auto sol = mat.solve(terms);
+            auto& sol_set = std::get<0>(sol);
+            auto& sol_idx = std::get<1>(sol);
 
-          if (not sol_set.size())
-            std::cout << "\nIl sistema non ha soluzione.";
-          else {
-            sol_out(sol_set, sol_idx, std::cout);
-            sol_to_file(sol_set, sol_idx);
+            if (not sol_set.size())
+              std::cout << "\nIl sistema non ha soluzione.";
+            else {
+              sol_out(sol_set, sol_idx, std::cout);
+              sol_to_file(sol_set, sol_idx);
+            }
+
+            if (matrix_file.size()) mat.to_file(matrix_file);
+            if (terms_file.size()) tool::vec_to_file(terms, terms_file);
+
+          } else {
+            NZVector<double> terms =
+                tool::rand_to_vec(rows, first_bound, second_bound);
+            Matrix<double> mat(rows, cols, first_bound, second_bound);
+            auto sol = mat.solve(terms);
+            auto& sol_set = std::get<0>(sol);
+            auto& sol_idx = std::get<1>(sol);
+
+            if (not sol_set.size())
+              std::cout << "\nIl sistema non ha soluzione.";
+            else {
+              sol_out(sol_set, sol_idx, std::cout);
+              sol_to_file(sol_set, sol_idx);
+            }
+
+            if (matrix_file.size()) mat.to_file(matrix_file);
+            if (terms_file.size()) tool::vec_to_file(terms, terms_file);
           }
-
-          if (matrix_file.size()) mat.to_file(matrix_file);
-          if (terms_file.size()) tool::vec_to_file(terms, terms_file);
-
-        } else {
-          NZVector<double> terms =
-              tool::rand_to_vec(rows, first_bound, second_bound);
-          Matrix<double> mat(rows, cols, first_bound, second_bound);
-          auto sol = mat.solve(terms);
-          auto& sol_set = std::get<0>(sol);
-          auto& sol_idx = std::get<1>(sol);
-
-          if (not sol_set.size())
-            std::cout << "\nIl sistema non ha soluzione.";
-          else {
-            sol_out(sol_set, sol_idx, std::cout);
-            sol_to_file(sol_set, sol_idx);
-          }
-
-          if (matrix_file.size()) mat.to_file(matrix_file);
-          if (terms_file.size()) tool::vec_to_file(terms, terms_file);
+        } catch (std::exception& e) {
+          std::cout << "\nErrore: " << e.what();
         }
         break;
       }

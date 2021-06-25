@@ -156,7 +156,8 @@ void tool::vec_to_file(const NZVector<T>& vec,
   std::ofstream out_file(file_name, mode);
 
   if (!out_file)
-    throw std::ios_base::failure("File " + file_name + " could not be opened");
+    throw std::ios_base::failure("Non è stato possibile aprire il file " +
+                                 file_name);
 
   std::ostringstream ss;
   tool::vec_to_string(vec, ss);

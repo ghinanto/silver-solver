@@ -42,7 +42,8 @@ Matrix<T>::Matrix(std::string const& file_name)
 {
   std::ifstream in_file(file_name, std::ios_base::in);
   if (!in_file)
-    throw std::ios_base::failure("File " + file_name + " could not be opened");
+    throw std::ios_base::failure("Non è stato possibile aprire il file " +
+                                 file_name);
 
   std::string str_line;
   while (std::getline(in_file, str_line)) {
@@ -213,7 +214,8 @@ void Matrix<T>::to_file(std::string const& file_name) const
   std::ofstream out_file(file_name, std::ios::out);
 
   if (!out_file) {  // exit program if ifstream could not open file
-    throw std::ios_base::failure("File " + file_name + " could not be opened");
+    throw std::ios_base::failure("Non è stato possibile aprire il file " +
+                                 file_name);
   }
 
   for (const NZVector<T>& nzv : *this) {
@@ -229,8 +231,8 @@ Matrix<T>::solve(const NZVector<X>& const_terms) const
 {
   if (this->rows() != const_terms.size())
     throw std::invalid_argument(
-        "Matrix::solve: const terms vector must have as many "
-        "coefficients as the rows of the matrix");
+        "Matrix::solve: Il numero di termini noti è diverso dal numero di "
+        "equazioni");
   Matrix<T> temp_mat(*this);
   NZVector<T> temp_terms(const_terms);
 
@@ -472,8 +474,8 @@ Matrix<T>::solve(const NZVector<std::complex<X>>& const_terms) const
 {
   if (this->rows() != const_terms.size())
     throw std::invalid_argument(
-        "Matrix::solve: const terms vector must have as many "
-        "coefficients as the rows of the matrix");
+        "Matrix::solve: Il numero di termini noti è diverso dal numero di "
+        "equazioni");
   // Costruisce l'equivalente reale del sistema commplesso
   NZVector<X> temp_terms;
   temp_terms.reserve(2 * const_terms.size_nz());

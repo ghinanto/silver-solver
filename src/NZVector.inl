@@ -48,8 +48,8 @@ NZVector<T>::NZVector(std::string const& file_name)
 {
   std::ifstream in_file(file_name);
   if (!in_file)
-    throw std::ios_base::failure("\nFile " + file_name +
-                                 " could not be opened");
+    throw std::ios_base::failure("Non è stato possibile aprire il file " +
+                                 file_name);
 
   std::string str_line;
   while (std::getline(in_file, str_line)) {
@@ -94,7 +94,8 @@ void NZVector<T>::set(const std::size_t pos, const T& val)
   // 'pos' è negativo o maggiore uguale dell'indice di controllo, i.e. l'ultimo
   // indice contenuto in 'idx_'
   if (pos >= this->size())
-    throw std::out_of_range("NZVector::set: pos is not referred to any value");
+    throw std::out_of_range("NZVector::set: l'indice " + std::to_string(pos) +
+                            " non corrisponde a nessun coefficiente.");
 
   const long pos_nonzero{this->plain_to_nonzero(pos)};
 
@@ -137,7 +138,8 @@ void NZVector<T>::set(const std::size_t pos, X action)
   // 'pos' è negativo o maggiore uguale dell'indice di controllo, i.e. l'ultimo
   // indice contenuto in 'idx_'
   if (pos >= this->size())
-    throw std::out_of_range("NZVector::set: pos is not referred to any value");
+    throw std::out_of_range("NZVector::set: l'indice " + std::to_string(pos) +
+                            " non corrisponde a nessun coefficiente.");
 
   T val{0.};
   const long pos_nonzero{this->plain_to_nonzero(pos)};
@@ -204,7 +206,8 @@ T NZVector<T>::at(const std::size_t pos) const
 {
   // 'pos' è negativo o maggiore uguale dell'indice di controllo
   if (pos >= this->size())
-    throw std::out_of_range("NZVector::at: index can't be greater than size");
+    throw std::out_of_range("NZVector::set: l'indice " + std::to_string(pos) +
+                            " non corrisponde a nessun coefficiente.");
 
   const long pos_nonzero{this->plain_to_nonzero(pos)};
   // 'pos' non è presente nell'elenco degli indici, ovvero il valore è nullo
@@ -282,7 +285,8 @@ long NZVector<T>::plain_to_nonzero(const size_t pos) const
 {
   // 'pos' è negativo o maggiore uguale dell'indice di controllo
   if (pos >= this->size())
-    throw std::out_of_range("NZVector::at: pos is not referred to any value");
+    throw std::out_of_range("NZVector::set: l'indice " + std::to_string(pos) +
+                            " non corrisponde a nessun coefficiente.");
 
   // Cerco 'pos' nell'elenco degli indici 'idx_'.
   // A causa dello schema di storage, nel vettore 'idx_' un indice qualsiasi
