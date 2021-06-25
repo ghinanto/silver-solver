@@ -14,7 +14,7 @@ class Matrix
   // Costruttori
   Matrix();
   Matrix(Matrix const&);
-  Matrix(Matrix&&);
+  Matrix(Matrix&&) noexcept;
   Matrix(std::ifstream&);
   Matrix(std::string const&);
   // costruisce una matrice a valori REALI generati random nell'intervallo
@@ -34,7 +34,7 @@ class Matrix
          Arithmetic second_bound);
   // Operatore uguale
   Matrix& operator=(Matrix const&);
-  Matrix& operator=(Matrix&&);
+  Matrix& operator=(Matrix&&) noexcept;
 
   // La parola chiave 'const' rende l'overload contrassegnato prioritario nel
   // caso di oggetti 'const'. Di conseguenza esso deve restituire un

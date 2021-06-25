@@ -24,7 +24,8 @@ NZVector<T>::NZVector(NZVector&& that) noexcept
     : idx_(move(that.idx_)), val_(move(that.val_))
 {
   std::clog << "\nNZV: Costruisco spostando\n";
-  // L'elenco degli indici deve contenere almeno l'indice di controllo
+  // Class invariant: l'elenco degli indici deve contenere almeno l'indice di
+  // controllo
   that.idx_.assign({0});
 }
 
@@ -67,12 +68,13 @@ NZVector<T>& NZVector<T>::operator=(const NZVector& that)
 }
 
 template <class T>
-NZVector<T>& NZVector<T>::operator=(NZVector&& that)
+NZVector<T>& NZVector<T>::operator=(NZVector&& that) noexcept
 {
   std::clog << "\nAssegno spostando\n";
   idx_ = move(that.idx_);
   val_ = move(that.val_);
-  // L'elenco degli indici deve contenere almeno l'indice di controllo
+  // Class invariant: l'elenco degli indici deve contenere almeno l'indice di
+  // controllo
   that.idx_.assign({0});
   return *this;
 }

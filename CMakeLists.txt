@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD 20)
 
 include_directories(${PROJECT_SOURCE_DIR}/inc)
 add_executable(silver-solver src/main.cpp)
-add_compile_options(-Wall -Wextra -fsanitize=address)
+add_compile_options(-Wall -Wextra -fsanitize=address -O3)

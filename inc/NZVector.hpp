@@ -26,7 +26,7 @@ class NZVector
   NZVector(std::string const&);
   // Operatore uguale
   NZVector& operator=(const NZVector&);
-  NZVector& operator=(NZVector&&);
+  NZVector& operator=(NZVector&&) noexcept;
   NZVector& operator=(const std::initializer_list<T>&);
 
   // imposta capacità del vettore

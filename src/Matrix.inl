@@ -20,7 +20,7 @@ Matrix<T>::Matrix(const Matrix& that) : matrix_(that.matrix_)
 }
 
 template <class T>
-Matrix<T>::Matrix(Matrix&& that) : matrix_(move(that.matrix_))
+Matrix<T>::Matrix(Matrix&& that) noexcept : matrix_(move(that.matrix_))
 {
   std::clog << "\nMatrix: Costruisco spostando\n";
 }
@@ -89,7 +89,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& that)
 }
 
 template <class T>
-Matrix<T>& Matrix<T>::operator=(Matrix&& that)
+Matrix<T>& Matrix<T>::operator=(Matrix&& that) noexcept
 {
   std::clog << "\nAssegno spostando\n";
   matrix_ = move(that.matrix_);

@@ -62,7 +62,6 @@ bool tool::is_zero(const std::complex<T>& value)
 template <std::floating_point T>
 NZVector<T> tool::rand_to_vec(std::size_t size, T coeff_min, T coeff_max)
 {
-  std::clog << "\nA CASO\n";
   /*   std::cout
         << "\nCoefficients are gonna be generated uniformly between two real "
            "numbers"
@@ -152,7 +151,7 @@ NZVector<std::complex<T>> tool::rand_to_vec(size_t size,
 template <class T>
 void tool::vec_to_file(const NZVector<T>& vec,
                        const std::string& file_name,
-                       std::ios mode)
+                       const std::ios_base::openmode mode)
 {
   std::ofstream out_file(file_name, mode);
 
@@ -176,9 +175,9 @@ template <class T>
 void tool::vec_to_string(const NZVector<T>& vec, std::ostringstream& out_string)
 {
   for (long i{0}; i < vec.size(); ++i) {
-    out_string << std::scientific << std::left;
-    out_string.precision(4);
-    out_string << std::setw(26) << vec.at(i);
+    out_string << std::scientific << std::left << std::setprecision(4)
+               << std::showpos;
+    out_string << vec.at(i) << "  ";
   }
 }
 

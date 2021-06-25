@@ -25,7 +25,7 @@ bool is_zero(const std::complex<T>&);
 
 // Restituisce un vettore con 'size' valori random reali
 template <std::floating_point T>
-NZVector<T> rand_to_vec(size_t size, T coeff_min, T coeff_max = 0.);
+NZVector<T> rand_to_vec(size_t size, T first_bound, T second_bound = 0.);
 
 // Riempie un vettore con 'size' valori random complessi.
 // 'complex_on_tot' varia da [0,100] e rappresenta la percentuale di
@@ -34,8 +34,8 @@ NZVector<T> rand_to_vec(size_t size, T coeff_min, T coeff_max = 0.);
 template <std::floating_point T>
 NZVector<std::complex<T>> rand_to_vec(size_t size,
                                       short complex_on_tot,
-                                      T coeff_min,
-                                      T coeff_max = 0.);
+                                      T first_bound,
+                                      T second_bound = 0.);
 
 // Scrive un vettore su file, utilizzando la modalità di apertura indicata.
 // Nel caso il file esista già, std::ios::out sovrascrive il contenuto,
@@ -43,7 +43,7 @@ NZVector<std::complex<T>> rand_to_vec(size_t size,
 template <class T>
 void vec_to_file(const NZVector<T>&,
                  const std::string& file_name,
-                 std::ios = std::ios::out);
+                 const std::ios_base::openmode = std::ios::out);
 
 template <class T>
 void vec_to_file(const NZVector<T>&, std::ofstream&);
