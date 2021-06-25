@@ -1,5 +1,5 @@
 # Silver Solver
-Risolve sistemi lineari qualsiasi a coefficienti reali o complessi.
+Risolve sistemi lineari a coefficienti reali o complessi e mostra le possibili soluzioni nel caso di sistemi indeterminati.
 ## Dependencies
 Standard Library del C++.
 In particolare è necessario g++-10 per utilizzare la concepts library.
