@@ -555,33 +555,36 @@ Matrix<T>::solve(const NZVector<std::complex<X>>& const_terms) const
   sol_idx.reserve(this->rows());
 
   auto tuple_sol = temp_mat.solve(temp_terms);
-
   std::size_t sol_length{std::get<0>(tuple_sol).size() / 2};
-  pars = static_cast<long>((std::get<0>(tuple_sol).at(0).size() - 1) / 2);
-  std::clog << "\nN_PARS = " << pars;
 
-  std::complex<X> val;
-  for (auto this_sol = std::get<0>(tuple_sol).begin(),
-            end = std::get<0>(tuple_sol).begin() + sol_length;
-       this_sol != end;
-       ++this_sol) {
-    val.imag(this_sol->at(0));
-    val.real((this_sol + sol_length)->at(0));
-    sol_set.push_back({val});
+  // Esegui solo se il sistema ha soluzione
+  if (sol_length) {
+    pars = static_cast<long>((std::get<0>(tuple_sol).at(0).size() - 1) / 2);
+    std::clog << "\nN_PARS = " << pars;
 
-    std::complex<X> par_coeff;
-    for (auto par_coeff_it = this_sol->rbegin(),
-              end = this_sol->rbegin() + pars;
-         par_coeff_it != end;
-         ++par_coeff_it) {
-      par_coeff.imag(*par_coeff_it);
-      par_coeff.real(*(par_coeff_it + pars));
-      sol_set.rbegin()->push_back(par_coeff);
+    std::complex<X> val;
+    for (auto this_sol = std::get<0>(tuple_sol).begin(),
+              end = std::get<0>(tuple_sol).begin() + sol_length;
+         this_sol != end;
+         ++this_sol) {
+      val.imag(this_sol->at(0));
+      val.real((this_sol + sol_length)->at(0));
+      sol_set.push_back({val});
+
+      std::complex<X> par_coeff;
+      for (auto par_coeff_it = this_sol->rbegin(),
+                end = this_sol->rbegin() + pars;
+           par_coeff_it != end;
+           ++par_coeff_it) {
+        par_coeff.imag(*par_coeff_it);
+        par_coeff.real(*(par_coeff_it + pars));
+        sol_set.rbegin()->push_back(par_coeff);
+      }
+
+      // '-1' converte distanza in indice
+      long idx{std::distance(this_sol, end) - 1};
+      sol_idx.push_back(idx);
     }
-
-    // '-1' converte distanza in indice
-    long idx{std::distance(this_sol, end) - 1};
-    sol_idx.push_back(idx);
   }
 
   return {sol_set, sol_idx};
