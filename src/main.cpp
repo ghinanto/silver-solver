@@ -1,24 +1,22 @@
 // Copyright 2021, Antonio Ghinassi, antonio.ghinassi@studio.unibo.it
-#include <algorithm>  // merge algorithm and copy
-#include <chrono>
+#include <algorithm>
 #include <complex>
 #include <concepts>
-#include <filesystem>  //needs -std=c++17 to be compiled
+#include <exception>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <iterator>  //ostream_iterator()
-#include <limits>
+#include <iterator>
 #include <random>
 #include <ranges>
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <vector>  // vector class-template definition
+#include <vector>
 #include "../inc/Matrix.hpp"
 #include "../inc/NZVector.hpp"
 #include "../inc/tool.hpp"
-
 namespace fs = std::filesystem;
 
 enum exe_request { FILE_INPUT = 1, RANDOM_INPUT, END };
