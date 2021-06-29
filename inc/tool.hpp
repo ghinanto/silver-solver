@@ -1,4 +1,7 @@
 // Copyright 2021, Antonio Ghinassi, antonio.ghinassi@studio.unibo.it
+//
+// Contiene funzioni di varia utilità in particolare nell'ambito della
+// conversione di NZVector in stringhe o file e viceversa.
 #ifndef TOOL_H
 #define TOOL_H
 
@@ -28,7 +31,7 @@ bool is_zero(const std::complex<T>&);
 template <std::floating_point T>
 NZVector<T> rand_to_vec(size_t size, T first_bound, T second_bound = 0.);
 
-// Riempie un vettore con 'size' valori random complessi.
+// Restituisce un vettore con 'size' valori random complessi.
 // 'complex_on_tot' varia da [0,100] e rappresenta la percentuale di
 // coefficienti con parte immaginaria diversa da zero.
 // Elimina il contenuto precedente del vettore
@@ -41,6 +44,7 @@ NZVector<std::complex<T>> rand_to_vec(size_t size,
 // Scrive un vettore su file, utilizzando la modalità di apertura indicata.
 // Nel caso il file esista già, std::ios::out sovrascrive il contenuto,
 // std::ios::app scrive di seguito al contenuto del file.
+// I coefficienti sono scritti in notazione scientifica tenendo 4 cifre decimali
 template <class T>
 void vec_to_file(const NZVector<T>&,
                  const std::string& file_name,

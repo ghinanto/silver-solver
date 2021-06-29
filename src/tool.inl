@@ -20,20 +20,22 @@ void tool::get_input(T& variable, std::istream& input, std::ostream& output)
 
   while (!input) {
     if (input.eof()) {
-      output << "Input stream closed\n";
+      output << "Input terminato\n";
       exit(EXIT_FAILURE);
     }
     output << "\n? ";
-    // Everything such as ".", "," puts cin in error state, thus
-    // require  clear.
+    // Input come '.' o ',' mettono l'input in errore, clear necessario per
+    // riportarlo in good state
     input.clear();
-    //"8.9" or  "94ybib" is not a cin error. Initialize w\ 8
-    // but leavs ".9" in stream, thus
-    // require  ignore.
+    // Input come "94ybib" sono accettati senza errori, ma lasciano "ybib" nel
+    // buffer, perciò necessario ignore per liberarlo.
     input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     input >> variable;
   }
+  // Input come "36.4  0.2  23" inizializzano la variabile con il primo valore
+  // e utiliizano gli altri valori per successive operazioni di input, perciò
+  // necessario ignore
   input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
@@ -44,9 +46,9 @@ bool tool::is_zero(const T& value)
   return false;
 }
 
-// Quando il metodo solve viene chiamato su una matrice a valori complessi, i
-// calcoli vengono eseguiti sull'equivalente reale. Perciò quando chiamo is_zero
-// voglio verificare che le componenti siano nulle.
+// Quando il metodo Matrix::solve viene chiamato su una matrice a valori
+// complessi, i calcoli vengono eseguiti sull'equivalente reale. Perciò quando
+// chiamo is_zero voglio verificare che le componenti siano nulle.
 template <class T>
 bool tool::is_zero(const std::complex<T>& value)
 {
@@ -62,30 +64,19 @@ bool tool::is_zero(const std::complex<T>& value)
 template <std::floating_point T>
 NZVector<T> tool::rand_to_vec(std::size_t size, T coeff_min, T coeff_max)
 {
-  /*   std::cout
-        << "\nCoefficients are gonna be generated uniformly between two real "
-           "numbers"
-        << "\nEnter first boundary";
-
-    tool::get_input(coeff_min, std::cin);
-
-    std::cout << "\nEnter second boundary";
-    tool::get_input(coeff_max, std::cin);
-   */
-  // Generation
-  std::mt19937 gen;  // generatore dei coeff
+  std::mt19937 gen;  // generatore dei coefficienti
   std::uniform_real_distribution<T> dis_coeff(coeff_min, coeff_max);
   std::uniform_int_distribution<short> dis_coin(0, 100);
 
-  // eseguo seed, fornisco alternativa sicura se primo metodo(migliore) non
-  // funzia
-  try {                     // random_device may be unavailable
+  // std::random_device potrebbe non essere diponibile su certi processori
+  // quindi, fornisco alternativa sicura
+  try {
     std::random_device rd;  // generatore dei seed
     gen.seed(rd());
   } catch (std::exception& e) {
-    typedef std::chrono::high_resolution_clock clockHR;
+    std::cerr << "\nCatturata eccezione: " << e.what() << '\n';
+    using clockHR = std::chrono::high_resolution_clock;
     clockHR::time_point beginning = clockHR::now();
-    std::cerr << "\nexception caught: " << e.what() << '\n';
     clockHR::duration d = clockHR::now() - beginning;
     unsigned seed_timer = d.count();  // get seed based on timer
 
@@ -187,9 +178,9 @@ std::string tool::vec_to_string(const NZVector<T>& vec)
 {
   std::ostringstream out_string;
   for (long i{0}; i < vec.size(); ++i) {
-    out_string << std::scientific << std::left;
-    out_string.precision(4);
-    out_string << std::setw(26) << vec.at(i);
+    out_string << std::scientific << std::left << std::setprecision(4)
+               << std::showpos;
+    out_string << vec.at(i) << "  ";
   }
   return out_string.str();
 }

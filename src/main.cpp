@@ -57,14 +57,14 @@ int main()
            p_idx < n_pars;
            ++p_idx)
         pars_idx.push_back(end + p_idx);
-      // Le righe successive mostrano le componenti del vettore soluzione
+      // Le righe mostrano le componenti del vettore soluzione
       long i{0};
       for (const auto& sol : sol_set) {
         s_line.str(std::string());  // Svuota lo stringstream
         s_line << std::noshowpos;
         s_line << "\nx[" << sol_idx.at(i++) << "] = ";
 
-        long j{0};
+        auto pars_idx_it = pars_idx.rbegin();
         for (auto coeff_it = sol.begin(); coeff_it != sol.end(); ++coeff_it) {
           s_line << std::scientific << std::left << std::setprecision(4)
                  << std::showpos;
@@ -72,7 +72,7 @@ int main()
 
           if (coeff_it != sol.begin())
             s_line << std::internal << std::noshowpos << "*x["
-                   << pars_idx.at(j++) << "]";
+                   << *(pars_idx_it++) << "]";
           s_line << "  ";
         }
         out << s_line.str();
@@ -89,13 +89,14 @@ int main()
       std::string sol_file;
       std::cout << "\n? ";
       std::getline(std::cin, sol_file);
+      if (sol_file.size()) {
+        std::ofstream sol_fstream(sol_file);
+        if (!sol_fstream)
+          throw std::ios_base::failure("Non è stato possibile aprire il file " +
+                                       sol_file);
 
-      std::ofstream sol_fstream(sol_file);
-      if (!sol_fstream)
-        throw std::ios_base::failure("Non è stato possibile aprire il file " +
-                                     sol_file);
-
-      sol_out(sol_set, sol_idx, sol_fstream);
+        sol_out(sol_set, sol_idx, sol_fstream);
+      }
     };
 
     switch (user_choice) {
