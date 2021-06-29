@@ -11,19 +11,19 @@
 template <class T>
 Matrix<T>::Matrix()
 {
-  std::clog << "\nCostruisco di default\n";
+  // std::clog << "\nCostruisco di default\n";
 }
 
 template <class T>
 Matrix<T>::Matrix(const Matrix& that) : matrix_(that.matrix_)
 {
-  std::clog << "\nMatrix: Costruisco per copia\n";
+  // std::clog << "\nMatrix: Costruisco per copia\n";
 }
 
 template <class T>
 Matrix<T>::Matrix(Matrix&& that) noexcept : matrix_(move(that.matrix_))
 {
-  std::clog << "\nMatrix: Costruisco spostando\n";
+  // std::clog << "\nMatrix: Costruisco spostando\n";
 }
 
 template <class T>
@@ -85,7 +85,7 @@ Matrix<T>::Matrix(std::size_t rows,
 template <class T>
 Matrix<T>& Matrix<T>::operator=(const Matrix& that)
 {
-  std::clog << "\nAssegno per copia\n";
+  // std::clog << "\nAssegno per copia\n";
   matrix_ = that.matrix_;
   return *this;
 }
@@ -93,7 +93,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& that)
 template <class T>
 Matrix<T>& Matrix<T>::operator=(Matrix&& that) noexcept
 {
-  std::clog << "\nAssegno spostando\n";
+  // std::clog << "\nAssegno spostando\n";
   matrix_ = move(that.matrix_);
   return *this;
 }
@@ -225,6 +225,13 @@ void Matrix<T>::to_file(std::string const& file_name) const
   }
 }
 
+// Il sistema viene risolto tramite algoritmo di Gauss e sostituzione.
+// L'algoritmo di Gauss riduce la matrice in forma scala per righe, eseguendo
+// operazioni di riga, in questo modo:
+// (1)  cerca in una colonna l'elemento maggiore in valore assoluto (pivot)
+// (2)  tramite operazioni di riga rende nulli gli altri coefficienti della
+//      colonna che non facciano parte di righe già contenenti un pivot
+// (3)  passa alla colonna successiva
 template <class T>
 template <std::floating_point X>
 std::tuple<typename std::vector<std::vector<X>>, std::vector<long>>
@@ -236,40 +243,29 @@ Matrix<T>::solve(const NZVector<X>& const_terms) const
         "equazioni");
   Matrix<T> temp_mat(*this);
   NZVector<T> temp_terms(const_terms);
-
-  std::clog << "\nTEMP_MAT:\n";
-  temp_mat.print(std::clog);
-  std::clog << "\nTEMP_TERMS:\n";
-  temp_terms.print(std::clog);
-
-  // Per svolgere algoritmo di Gauss devo avere la matrice in forma
-  // scala-per-righe. Per ottimizzare la scelta del pivot può essere necessario
-  // seguire un ordine diverso da quello in cui sono disposte le righe della
-  // matrice. Quindi invece che spostare le righe, creo un elenco degli indici
-  // delle righe che mano a mano entrano a far parte della struttura
-  // scala-per-righe, ovvero quelle righe che contengono un pivot.
+  // Crea un elenco degli indici delle righe che mano a mano entrano a far
+  // parte della struttura scala-per-righe, ovvero quelle righe che contengono
+  // un pivot.
   std::vector<long> pivoted_rows;
   pivoted_rows.reserve(temp_mat.rows());
 
   // ALGORITMO DI GAUSS
   // ***************************************************************************
-  // Massimo valore possibile del rango della matrice
   const std::size_t rank_max = std::min(temp_mat.rows(), temp_mat.cols());
-  std::clog << "\nRANK_MAX = " << rank_max << '\n';
 
   // L'algoritmo di gauss è ripetuto finchè ci sono equazioni E incognite.
-  // 'j' colonna della matrice
-  for (std::size_t j{0}, delta{0}; j < rank_max + delta; ++j) {
+  for (std::size_t this_col{0}, delta{0}; this_col < rank_max + delta;
+       ++this_col) {
     T pivot{0.};
-    // Indice riga del pivot nella colonna j.
+    // Indice riga del pivot nella colonna this_col.
     long pivot_row{0};
 
-    // Individua il pivot nella colonna j come il coefficiente a valore
+    // Individua il pivot nella colonna this_col come il coefficiente a valore
     // maggiore.
-    // Questo per maggiore stabilità nei risultati delle operazioni di riga,
-    // dove bisogna dividere per il pivot.
-    // E' necessario inizializzare this_row a -1 e incrementarlo all'inizio del
-    // ciclo a causa di 'continue' contenuto nel primo 'if'.
+    // Questo per maggiore stabilità nei risultati delle operazioni di riga in
+    // cui bisogna dividere per il pivot.
+    // E' necessario inizializzare this_row a '-1' e incrementarlo all'inizio
+    // del ciclo a causa di 'continue' contenuto nel primo 'if'.
     long this_row{-1};
     for (NZVector<T>& row : temp_mat) {
       ++this_row;
@@ -279,25 +275,19 @@ Matrix<T>::solve(const NZVector<X>& const_terms) const
           std::find(pivoted_rows.begin(), pivoted_rows.end(), this_row))
         continue;
 
-      if (std::abs(row.at(j)) > std::abs(pivot)) {
-        pivot = row.at(j);
+      if (std::abs(row.at(this_col)) > std::abs(pivot)) {
+        pivot = row.at(this_col);
         pivot_row = this_row;
       }
     }
-    // Matrice dopo la scelta dei pivot
-    std::clog << "\n[" << pivot_row << ", " << j << "] Pivot = " << pivot
-              << "\nMatrix";
-    std::clog << "\nMATRIX AFTER PIVOT CHOICE:\n";
-    temp_mat.print(std::clog);
-    std::clog << "\nTERMS AFTER PIVOT CHOICE:\n";
-    temp_terms.print(std::clog);
-    // Se 'pivot' è nullo, tutti i coefficienti della colonna j sono nulli,
-    // ovvero la componente j del vettore soluzione è un parametro.
-    // Non ci sono operazioni di riga da svolgere. Aggiorna la condizione del
-    // ciclo per continuare a cercare un pivot e passa alla colonna successiva.
-    // Concettualmente 'delta' permette di ignorare colonne nulle.
-    // Altrimenti aggiunge l'indice riga del pivot al vettore che tiene
-    // traccia della struttura scala per righe.
+
+    // Se qui 'pivot' è nullo, tutti i coefficienti della colonna this_col sono
+    // nulli, ovvero la componente this_col del vettore soluzione è un
+    // parametro. Non ci sono operazioni di riga da svolgere. Passa alla
+    // colonna successiva. Inoltre poichè una variabile interna assume il ruolo
+    // di parametro, per completare la forma scala per righe è necessario
+    // aumentare il limite del ciclo incrementando 'delta'. Concettualmente
+    // 'delta' permette di ignorare colonne nulle.
     if (tool::is_zero(pivot)) {
       if (this->cols() > rank_max + delta) ++delta;
       continue;
@@ -307,48 +297,44 @@ Matrix<T>::solve(const NZVector<X>& const_terms) const
     else
       pivoted_rows.push_back(pivot_row);
 
-    NZVector<T>& row_pivot = temp_mat.row(pivot_row);  // Per semplicità
-    // Nella colonnna j rende nulli tutti i coefficienti di righe che non
+    // Nella colonnna this_col rende nulli tutti i coefficienti di righe che non
     // fanno ancora parte della struttura scala-per-righe, ovvero che non
     // contengono ancora un pivot.
     // Quindi modifica le righe di conseguenza.
+    NZVector<T>& row_pivot = temp_mat.row(pivot_row);  // Per semplicità
     this_row = -1;
     for (NZVector<T>& row : temp_mat) {
       ++this_row;
-      if (tool::is_zero(row.at(j))) continue;
+      if (tool::is_zero(row.at(this_col))) continue;
       // Se la riga 'row' fa già parte della struttura scala per righe,
       // passa a quella successiva.
       if (pivoted_rows.end() !=
           std::find(pivoted_rows.begin(), pivoted_rows.end(), this_row))
         continue;
-      // Variabile necessaria perchè row.at(j) cambia con le operazioni di riga
-      T row_factor{row.at(j) / pivot};
+      // Variabile necessaria perchè row.at(this_col) cambia con le operazioni
+      // di riga
+      T row_factor{row.at(this_col) / pivot};
 
       // Modifica la MATRICE
-      // Rende nulli i coefficienti "sotto" pivot per realizzare la struttura
+      // Rende nulli i coefficienti "sotto" il pivot per realizzare la struttura
       // scala per righe
-      row.set(j, 0.);
+      row.set(this_col, 0.);
       // Sottrae alla riga 'row' la riga del pivot moltiplicata per row_factor
-      for (std::size_t col(j + 1); col < row.size(); ++col) {
+      for (std::size_t col(this_col + 1); col < row.size(); ++col)
         row.set(col, [&](T& val) { val -= row_pivot.at(col) * row_factor; });
-      }
+
       // Modifica il TERMINE NOTO
       // Se il sistema è NON OMOGENEO, devo eseguire le operazioni di riga
       // anche sui termini noti.
-      if (const_terms.size_nz()) {
+      if (const_terms.size_nz())
         temp_terms.set(this_row, [&](T& val) {
           val -= temp_terms.at(pivot_row) * row_factor;
         });
-      }
     }
   }  // End GAUSS
 
-  std::clog << "\nMATRIX AFTER GAUSS:\n";
-  temp_mat.print(std::clog);
-  std::clog << "\nTERMS AFTER GAUSS:\n";
-  temp_terms.print(std::clog);
-  // Ridotta la matrice alla struttura scala-per-righe, le righe dipendenti
-  // sono tutte nulle.
+  // Ridotta la matrice alla struttura scala-per-righe, le righe linearmente
+  // dipendenti sono nulle.
   // Se il sistema è NON omogeneo, queste righe potrebbero essere
   // inconsistenti, ovvero riga della matrice nulla e termine noto non nullo.
   // In questo caso il sistema è impossibile.
@@ -360,7 +346,7 @@ Matrix<T>::solve(const NZVector<X>& const_terms) const
         continue;
 
       if (not tool::is_zero(temp_terms.at(this_row)))
-        // Creo gli elementi della tuple in modo da poter utilizzare 'tie'
+        // Creo gli elementi della tuple in modo da poter utilizzare std::tie
         return {{}, {}};
     }
   }
@@ -368,105 +354,105 @@ Matrix<T>::solve(const NZVector<X>& const_terms) const
   // Contiene gli indici colonna delle componenti del vettore soluzione
   std::vector<long> sol_idx;
   sol_idx.reserve(pivoted_rows.size());
-  // Contiene le componenti del vettore soluzione in forma di vettore.
-  // Il primo elemento di ciascun vettore è il valore numerico della soluzione.
-  // Se il sistema è INDETERMINATO, a ciascun valore seguono i coefficienti
-  // delle componenti che hanno ruolo di parametro, inseriti seguendo l'ordine
-  // decrescente degli indici colonna.
-  // es. A matrice 2x4, x = (x_1, x_2, x_3, x_4), b = (5., 34.)
-  //     sistema Ax = b
-  //     soluzine:
-  //     x_1 = 4.5  + 9.2*x_4 + 2.1*x_3 e sol_set[0] = (4.5,  9.2,  2.1)
-  //     x_2 = 13.1 + 4.7*x_4 - 0.3*x_3 e sol_set[1] = (13.1, 4.7, -0.3)
-  //
+  // Contiene le componenti del vettore soluzione
   std::vector<std::vector<T>> sol_set;
   sol_set.reserve(pivoted_rows.size());
 
   // SOLUZIONE PER SOSTITUZIONE
   // ***************************************************************************
-  // risalgo la struttura scala-per-righe
-  // indicates the column beyond which not search for
-  // pars, i.e. inizialmente through all matrix length
-  long col_pivot = static_cast<long>(temp_mat.cols());
+  //
+  long previous_pivot_idx = static_cast<long>(temp_mat.cols());
   // Risale la struttura scala-per-righe e ottiene le soluzioni per sostituzione
   for (auto this_row = pivoted_rows.rbegin(), rend = pivoted_rows.rend();
        this_row != rend;
        ++this_row) {
-    // SUBSTITUTION OF CONST TERMS, FROM OTHER UNKN
-    // IF HOM, double sol(0).
+    // Il valore numerico della soluzione
     // 'temp_terms.at(*this_row)' è il termine noto della riga corrente
     T sol(temp_terms.at(*this_row));
-
-    // Sostituire significa tenere conto dei contributi delle soluzioni delle
-    // equazioni Considera i contributi alla riga corrente dei valori numerici
-    // di altre soluzioni 'temp_mat.row(*this_row).at(idx)' è il coefficiente
-    // nella riga corrente e nella colonna 'idx'.
+    // Considera i contributi alla riga corrente dei valori numerici di altre
+    // soluzioni
+    //'temp_mat.row(*this_row).at(idx)' è il coefficiente di x[idx] nella riga
+    // corrente
     //'sol_set.at(j++).at(0)' è il valore numerico della soluzione precedente
     long j{0};
     for (long idx : sol_idx)
       sol -= temp_mat.row(*this_row).at(idx) * sol_set.at(j++).at(0);
-    // 'sol' è il valore numerico della soluzione
     sol_set.push_back({sol});
 
-    // SUBSTITUTION OF PARS
-
-    // BACK SUB OLD PAR FIRST(i.e. from other unknowns)
-    // 'col' è la pedina con cui percorro la matrice analizzandone le colonne
+    // 'col' è l'indice con cui percorro la matrice analizzandone le colonne
     // partendo dalla fine
     long col = static_cast<long>(temp_mat.cols() - 1);
+    // Numero di parametri
     long n_par{0};
-    // Verifico il indice colonna di ciascuna soluzione
+
+    // Sostituisco coefficienti di parametri già contenuti nelle soluzioni
+    // precedenti.
+    // 'sol_idx' contiene gli indici colonna delle soluzioni in ordine
+    //  decrescente. Quindi se col > pivot_idx, significa che gli indici che li
+    //  separano sono quelli di parametri.
     for (long pivot_idx : sol_idx) {
-      // se è minore di 'col' vuol dire che ci sono dei parametri frammezzo
       for (; col > pivot_idx; --col) {
         ++n_par;
-        // il valore del parametro nella riga corrente
+        // coefficiente del parametro nella riga corrente
         T par = -temp_mat.row(*this_row).at(col);
 
-        // Porto i contributi di tutte le altre soluzioni al parametro della
-        // colonna col
-        j = 0;
-        // 'at(temp_mat.cols()-col)' i.e. 'at(1)' first exe,
-        // at(2)' second, and so on
         // Sostituisco da altre soluzioni verificando che abbiano effettivamente
-        // coefficienti di quei parametri, se no out_of_range
+        // coefficienti di quei parametri, altrimenti 'sol_set.at(j).at(n_par)'
+        // non esiste
+        // 'temp_mat.row(*this_row).at(idx)' è il coefficiente di x[idx] nella
+        // riga corrente
+        // 'sol_set.at(j).at(n_par)' è il coefficiente del parametro in x[idx]
+        j = 0;
         for (long idx : sol_idx) {
-          if (col > idx)
+          // x[idx] può contenere solo paramteri di indice maggiore del proprio
+          if (idx < col)
             par -= temp_mat.row(*this_row).at(idx) * sol_set.at(j).at(n_par);
           ++j;
         }
 
         (*sol_set.rbegin()).push_back(par);
       }
+      // Leggo la matrice a partire dalla colonna precedente quella corrente,
+      // che so già contenere un pivot
       col = pivot_idx - 1;
     }
 
-    // BACK SUB NEW PAR THEN
-    for (long col = col_pivot - 1,
-              plain_pos = temp_mat.row(*this_row).nonzero_to_plain(0);
-         col > plain_pos;
-         --col) {
+    // Considero nuovi parametri introdotti dalla riga corrente
+    const long this_pivot_idx = temp_mat.row(*this_row).nonzero_to_plain(0);
+    for (long col = previous_pivot_idx - 1; col > this_pivot_idx; --col) {
       T new_par = temp_mat.row(*this_row).at(col);
-      // se mi eseguo, at(col) c'è NUOVO parametro
-      //'-' comes from equation, needed bcos coeff of unkn
       (*sol_set.rbegin()).push_back(-new_par);
     }
 
-    // for_each (*sol_set.rbegin()) divide by
-    // temp_mat.row(*this_row).plain_pos(0) (i.e. pivot)
+    // Divide tutto la componente corrente del vettore soluzione per il pivot
+    // 'temp_mat.row(*this_row).at_nz(0)' è il pivot
     std::for_each((*sol_set.rbegin()).begin(),
                   (*sol_set.rbegin()).end(),
                   [&](T& val) { val /= temp_mat.row(*this_row).at_nz(0); });
 
+    sol_idx.push_back(this_pivot_idx);  // so i know which unkn is
     // so in next row searches pars until previous pivot
-    col_pivot = temp_mat.row(*this_row).nonzero_to_plain(0);
-    sol_idx.push_back(col_pivot);  // so i know which unkn is
+    previous_pivot_idx = this_pivot_idx;
   }
 
   return {sol_set, sol_idx};
 }
 
 // T = complex<X>
+// Risolve un sistema a coefficienti complessi risolvendo il sistema
+// equivalente reale.
+// Dato un sistema Mx=c con M=A+i*B matrice, x=y+i*z, c=r+i*s vettore, il
+// sistema equivalente reale è dato da:
+//   | A -B | |x| = |p|
+//   | B  A | |y|   |q|
+//
+// Nel caso di sistemi indeterminati il sistema equivalente viene ottenuto
+// spostando le colonne che si riferiscono alle parti reali e immaginarie dei
+// parametri in fondo alla matrice, ovvero:
+//   | A(x) -B(x) | A(p) -B(p) | |x| = |r|
+//   | B(x)  A(x) | B(p)  A(p) | |y|   |s|
+// dove A(x), B(x) contengono le parti reali e immaginarie delle incognite,
+// A(p) e B(p) le parti reali e immaginarie dei parametri.
 template <class T>
 template <std::floating_point X>
 std::tuple<typename std::vector<std::vector<std::complex<X>>>,
@@ -477,7 +463,7 @@ Matrix<T>::solve(const NZVector<std::complex<X>>& const_terms) const
     throw std::invalid_argument(
         "Matrix::solve: Il numero di termini noti è diverso dal numero di "
         "equazioni");
-  // Costruisce l'equivalente reale del sistema commplesso
+  // Costruisce l'equivalente reale del vettore dei termini noti
   NZVector<X> temp_terms;
   temp_terms.reserve(2 * const_terms.size_nz());
   for (std::size_t i{0}, length{const_terms.size()}; i < length; ++i) {
@@ -489,10 +475,10 @@ Matrix<T>::solve(const NZVector<std::complex<X>>& const_terms) const
 
   long pars = static_cast<long>(this->cols() - this->rows());
   if (pars < 0) pars = 0;
-
+  // Costruisce l'equivalente reeale della matrice
   Matrix<X> temp_mat;
   temp_mat.reserve(2 * this->rows());
-  // upper A and -B
+  // Scorre le righe della matrice
   for (const NZVector<std::complex<X>>& this_row : *this) {
     temp_mat.emplace_back(2 * this_row.size_nz());
 
@@ -507,7 +493,7 @@ Matrix<T>::solve(const NZVector<std::complex<X>>& const_terms) const
     }
 
     // Riempie A(p) e -B(p)
-    // Se pars=0, non si esegue.
+    // Se pars==0, non si esegue.
     for (std::size_t col{this_row.size() - pars}, length{this_row.size()};
          col < length;
          ++col) {
@@ -519,7 +505,7 @@ Matrix<T>::solve(const NZVector<std::complex<X>>& const_terms) const
       temp_mat.rbegin()->push_back(-this_row.at(col).imag());
     }
   }
-  // lower B and A
+  // Scorre le righe della matrice
   for (const NZVector<std::complex<X>>& this_row : *this) {
     temp_mat.emplace_back(2 * this_row.size_nz());
 
@@ -534,7 +520,7 @@ Matrix<T>::solve(const NZVector<std::complex<X>>& const_terms) const
     }
 
     // Riempie B(p) e A(p)
-    // Se pars=0, non si esegue.
+    // Se pars==0, non si esegue.
     for (std::size_t col{this_row.size() - pars}, length{this_row.size()};
          col < length;
          ++col) {
@@ -547,25 +533,23 @@ Matrix<T>::solve(const NZVector<std::complex<X>>& const_terms) const
     }
   }
 
-  std::clog << "\nTEMP_MAT:\n";
-  temp_mat.print(std::clog);
-  std::clog << "\nTEMP_TERMS:\n";
-  temp_terms.print(std::clog);
-
   std::vector<std::vector<std::complex<X>>> sol_set;
   std::vector<long> sol_idx;
   sol_set.reserve(this->rows());
   sol_idx.reserve(this->rows());
 
   auto tuple_sol = temp_mat.solve(temp_terms);
+  // Dimensione della soluzione.
+  // 'std::get<0>(tuple_sol)' è la soluzione reale equivalente, che è lunga il
+  // doppio
   std::size_t sol_length{std::get<0>(tuple_sol).size() / 2};
 
-  // Esegui solo se il sistema ha soluzione
-  if (sol_length) {
+  // Scrive la soluzione usando i numeri complessi a partire dalla soluzione
+  // reale equivalente ottenuta
+  if (sol_length) {  // Esegui solo se il sistema ha soluzione
     pars = static_cast<long>((std::get<0>(tuple_sol).at(0).size() - 1) / 2);
-    std::clog << "\nN_PARS = " << pars;
 
-    std::complex<X> val;
+    std::complex<X> val;  // Valore numerico
     for (auto this_sol = std::get<0>(tuple_sol).begin(),
               end = std::get<0>(tuple_sol).begin() + sol_length;
          this_sol != end;
@@ -574,7 +558,7 @@ Matrix<T>::solve(const NZVector<std::complex<X>>& const_terms) const
       val.real((this_sol + sol_length)->at(0));
       sol_set.push_back({val});
 
-      std::complex<X> par_coeff;
+      std::complex<X> par_coeff;  // Coeffiente del parametro
       for (auto par_coeff_it = this_sol->rbegin(),
                 end = this_sol->rbegin() + pars;
            par_coeff_it != end;
@@ -589,12 +573,11 @@ Matrix<T>::solve(const NZVector<std::complex<X>>& const_terms) const
       sol_idx.push_back(idx);
     }
   }
-
   return {sol_set, sol_idx};
 }
 
 template <class T>
 Matrix<T>::~Matrix()
 {
-  std::clog << "\nMatrix: Distruggo\n";
+  // std::clog << "\nMatrix: Distruggo\n";
 }
