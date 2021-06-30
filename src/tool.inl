@@ -100,37 +100,27 @@ NZVector<std::complex<T>> tool::rand_to_vec(size_t size,
                                             T coeff_min,
                                             T coeff_max)
 {
-  /*   std::cout
-        << "\nCoefficients are gonna be generated uniformly between two real "
-           "numbers"
-        << "\nEnter first boundary";
-    tool::get_input(coeff_min, std::cin);
-
-    std::cout << "\nEnter second boundary";
-    tool::get_input(coeff_max, std::cin);
-   */
-  // Generation
   std::mt19937 gen;  // generatore dei coeff
   std::uniform_real_distribution<T> dis_coeff(coeff_min, coeff_max);
   std::uniform_int_distribution<short> dis_coin(0, 100);
 
-  // eseguo seed, fornisco alternativa sicura se primo metodo(migliore) non
-  // funzia
-  try {                     // random_device may be unavailable
+  // std::random_device potrebbe non essere diponibile su certi processori
+  // quindi, fornisco alternativa sicura basata su un timer
+  try {
     std::random_device rd;  // generatore dei seed
     gen.seed(rd());
   } catch (std::exception& e) {
-    typedef std::chrono::high_resolution_clock clockHR;
+    std::cerr << "\nCatturata eccezione: " << e.what() << '\n';
+    using clockHR = std::chrono::high_resolution_clock;
     clockHR::time_point beginning = clockHR::now();
-    std::cerr << "\nexception caught: " << e.what() << '\n';
     clockHR::duration d = clockHR::now() - beginning;
-    unsigned seed_timer = d.count();  // get seed based on timer
+    unsigned seed_timer = d.count();
 
     gen.seed(seed_timer);
   }
 
   NZVector<std::complex<T>> vec(size);
-  for (long i{0}; i < size; ++i) {  // complex
+  for (long i{0}; i < size; ++i) {
     T real{dis_coeff(gen)};
     T imag{0.};
     if (dis_coin(gen) < complex_on_tot) imag = dis_coeff(gen);
