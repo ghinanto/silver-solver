@@ -61,7 +61,8 @@ Matrix<T>::Matrix(std::size_t rows,
                   T first_bound,
                   T second_bound)
 {
-  // this->reserve(rows);
+  // reserve evita che il vettore riallochi memoria quando cambia dimensione
+  this->reserve(rows);
   for (std::size_t i{0}; i < rows; ++i) {
     this->emplace_back(tool::rand_to_vec(cols, first_bound, second_bound));
   }
@@ -75,6 +76,7 @@ Matrix<T>::Matrix(std::size_t rows,
                   Arithmetic first_bound,
                   Arithmetic second_bound)
 {
+  // reserve evita che il vettore riallochi memoria quando cambia dimensione
   this->reserve(rows);
   for (std::size_t i{0}; i < rows; ++i) {
     this->emplace_back(
