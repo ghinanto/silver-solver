@@ -147,8 +147,8 @@ void NZVector<T>::set(const std::size_t pos, const T& val)
 // 'action' deve prendere un solo argomento per riferimento, altrimenti il
 //  valore del coefficiente che si vuole modificare diventa 0.
 template <class T>
-template <std::invocable<T&> X>
-void NZVector<T>::set(const std::size_t pos, X action)
+template <std::invocable<T&> UnaryFunction>
+void NZVector<T>::set(const std::size_t pos, UnaryFunction action)
 {
   if (pos >= this->size())
     throw std::out_of_range("NZVector::set: l'indice " + std::to_string(pos) +

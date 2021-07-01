@@ -55,8 +55,8 @@ class NZVector
   // un solo argomento di tipo double, ovvero il coefficiente.
   // es. double correction{3.14};
   //     vec.set(0, [&](double& val){ val += correction});
-  template <std::invocable<T&> X>
-  void set(const std::size_t pos, X);
+  template <std::invocable<T&> UnaryFunction>
+  void set(const std::size_t pos, UnaryFunction);
   // Aggiunge valori alla fine del vettore
   void push_back(const T&);
   // cancella il contenuto del vettore. lascia invariata la capacità
