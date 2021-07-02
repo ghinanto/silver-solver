@@ -39,21 +39,36 @@ void tool::get_input(T& variable, std::istream& input, std::ostream& output)
   input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-template <class T>
-bool tool::is_zero(const T& value)
+template <std::floating_point T>
+bool tool::is_zero(const T& value, const T& precision)
 {
-  if (std::abs(value) < std::numeric_limits<T>::epsilon()) return true;
+  if (std::abs(value) < precision) return true;
   return false;
 }
 
 // Quando il metodo Matrix::solve viene chiamato su una matrice a valori
 // complessi, i calcoli vengono eseguiti sull'equivalente reale. Perciò quando
 // chiamo is_zero voglio verificare che le componenti siano nulle.
-template <class T>
+template <std::floating_point T>
+bool tool::is_zero(const std::complex<T>& value, const T& precision)
+{
+  if (std::abs(value.real()) < precision && std::abs(value.imag()) < precision)
+    return true;
+  return false;
+}
+// epsilon restituisce zero nel caso di numeri interi
+template <std::integral T>
+bool tool::is_zero(const T& value)
+{
+  if (value == std::numeric_limits<T>::epsilon()) return true;
+  return false;
+}
+// epsilon restituisce zero nel caso di numeri interi
+template <std::integral T>
 bool tool::is_zero(const std::complex<T>& value)
 {
-  if (std::abs(value.real()) < std::numeric_limits<T>::epsilon() &&
-      std::abs(value.imag()) < std::numeric_limits<T>::epsilon())
+  if (value.real() == std::numeric_limits<T>::epsilon() &&
+      value.imag() == std::numeric_limits<T>::epsilon())
     return true;
   return false;
 }

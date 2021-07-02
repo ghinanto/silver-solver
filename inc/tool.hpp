@@ -21,20 +21,31 @@ void get_input(T& variable,
 // Restituisce 'true' se l'argomento ha valore zero.
 // Nel caso di variabili numeriche a valori decimali viene considerato nullo
 // solo un valore maggiore del minimo rappresentabile dall'architettura.
-template <class T>
+template <std::floating_point T>
+bool is_zero(const T&, const T& precision = std::numeric_limits<T>::epsilon());
+
+template <std::floating_point T>
+bool is_zero(const std::complex<T>&,
+             const T& precision = std::numeric_limits<T>::epsilon());
+
+template <std::integral T>
 bool is_zero(const T&);
 
-template <class T>
+template <std::integral T>
 bool is_zero(const std::complex<T>&);
 
 // Restituisce un vettore con 'size' valori random reali
+// Quando usato per inizializzare un NZVector, il compilatore elide la copia
+// (NRVO) costruendo direttamente il vettore di destinazione.
 template <std::floating_point T>
 NZVector<T> rand_to_vec(size_t size, T first_bound, T second_bound = 0.);
 
 // Restituisce un vettore con 'size' valori random complessi.
 // 'complex_on_tot' varia da [0,100] e rappresenta la percentuale di
 // coefficienti con parte immaginaria diversa da zero.
-// Elimina il contenuto precedente del vettore
+// Elimina il contenuto precedente del vettore.
+// Quando usato per inizializzare un NZVector, il compilatore elide la copia
+// (NRVO) costruendo direttamente il vettore di destinazione.
 template <std::floating_point T>
 NZVector<std::complex<T>> rand_to_vec(size_t size,
                                       short complex_on_tot,
@@ -62,6 +73,8 @@ std::string vec_to_string(const NZVector<T>&);
 
 // Inserisce alla fine di un vettore i coefficienti contenuti in forma testuale
 // in uno string stream.
+// Quando usato per inizializzare un NZVector, il compilatore elide la copia
+// (NRVO) costruendo direttamente il vettore di destinazione.
 template <class T>
 void string_to_vec(std::istringstream&, NZVector<T>&);
 

@@ -26,7 +26,8 @@ class Matrix
   Matrix();
   Matrix(Matrix const&);
   Matrix(Matrix&&) noexcept;
-  // Costruisce la matrice con i coefficienti contenuti in un file
+  // Costruisce la matrice con i coefficienti contenuti in un file di testo.
+  // Ogni riga del file viene usata per costruire una riga della matrice.
   Matrix(std::ifstream&);
   Matrix(std::string const& file_name);
   // Costruisce una matrice a valori REALI generati random nell'intervallo
