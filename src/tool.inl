@@ -16,9 +16,8 @@ template <class T>
 void tool::get_input(T& variable, std::istream& input, std::ostream& output)
 {
   output << "\n? ";
-  input >> variable;
 
-  while (!input) {
+  while (!(input >> variable)) {
     if (input.eof()) {
       output << "Input terminato\n";
       exit(EXIT_FAILURE);
@@ -30,8 +29,6 @@ void tool::get_input(T& variable, std::istream& input, std::ostream& output)
     // Input come "94ybib" sono accettati senza errori, ma lasciano "ybib" nel
     // buffer, perciò necessario ignore per liberarlo.
     input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    input >> variable;
   }
   // Input come "36.4  0.2  23" inizializzano la variabile con il primo valore
   // e utiliizano gli altri valori per successive operazioni di input, perciò
@@ -81,10 +78,8 @@ NZVector<T> tool::rand_to_vec(std::size_t size, T coeff_min, T coeff_max)
 {
   std::mt19937 gen;  // generatore dei coefficienti
   std::uniform_real_distribution<T> dis_coeff(coeff_min, coeff_max);
-  std::uniform_int_distribution<short> dis_coin(0, 100);
 
-  // std::random_device potrebbe non essere diponibile su certi processori
-  // quindi, fornisco alternativa sicura
+  // std::random_device potrebbe non essere diponibile, fornisco alternativa
   try {
     std::random_device rd;  // generatore dei seed
     gen.seed(rd());

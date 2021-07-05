@@ -243,6 +243,7 @@ Matrix<T>::solve(const NZVector<X>& const_terms) const
     throw std::invalid_argument(
         "Matrix::solve: Il numero di termini noti è diverso dal numero di "
         "equazioni");
+
   Matrix<T> temp_mat(*this);
   NZVector<T> temp_terms(const_terms);
   // Crea un elenco degli indici delle righe che mano a mano entrano a far
@@ -348,8 +349,8 @@ Matrix<T>::solve(const NZVector<X>& const_terms) const
         continue;
 
       if (not tool::is_zero(temp_terms.at(this_row)))
-        // Creo gli elementi della tuple in modo da poter utilizzare std::tie
-        return {{}, {}};
+        return {{}, {}};  // Anche se vuoti, creo gli elementi della tuple in
+                          // modo da poter utilizzare std::tie
     }
   }
 
@@ -375,7 +376,7 @@ Matrix<T>::solve(const NZVector<X>& const_terms) const
     // soluzioni
     //'temp_mat.row(*this_row).at(idx)' è il coefficiente di x[idx] nella riga
     // corrente
-    //'sol_set.at(j++).at(0)' è il valore numerico della soluzione precedente
+    //'sol_set.at(j++).at(0)' è il valore numerico della soluzione x[j]
     long j{0};
     for (long idx : sol_idx)
       sol -= temp_mat.row(*this_row).at(idx) * sol_set.at(j++).at(0);
@@ -403,10 +404,12 @@ Matrix<T>::solve(const NZVector<X>& const_terms) const
         // non esiste
         // 'temp_mat.row(*this_row).at(idx)' è il coefficiente di x[idx] nella
         // riga corrente
-        // 'sol_set.at(j).at(n_par)' è il coefficiente del parametro in x[idx]
+        // 'sol_set.at(j).at(n_par)' è il coefficiente del parametro contenuto
+        // in x[idx]
         j = 0;
         for (long idx : sol_idx) {
-          // x[idx] può contenere solo paramteri di indice maggiore del proprio
+          // poiché la matrice è ridotta scala-per-righe, x[idx] può contenere
+          // solo paramteri di indice maggiore del proprio
           if (idx < col)
             par -= temp_mat.row(*this_row).at(idx) * sol_set.at(j).at(n_par);
           ++j;

@@ -29,6 +29,7 @@ int main()
     std::string terms_file;
     std::string matrix_file;
     bool complex_field{false};
+
     // Mostra su output la soluzione del sistema
     auto sol_out = [&complex_field](std::ranges::range auto& sol_set,
                                     std::ranges::range auto& sol_idx,
@@ -44,7 +45,7 @@ int main()
       // appare in sol_idx
       // es. sol_idx = {9, 8, 7, 4, 3, 2, 0}
       //     x[6], x[5], x[1] sono parametri
-      for (long p_idx{0}, greater{sol_idx.at(0)}; p_idx < greater; ++p_idx)
+      for (long p_idx{0}, max_idx{sol_idx.at(0)}; p_idx < max_idx; ++p_idx)
         if (std::none_of(sol_idx.begin(), sol_idx.end(), [p_idx](long idx) {
               return idx == p_idx;
             })) {
@@ -126,6 +127,7 @@ int main()
         std::cout << "\n? ";
         // Permette di gestire nomi di file che contengono spazi
         std::getline(std::cin, matrix_file);
+        std::cout << "Elaborazione in corso. Attendere ..." << std::endl;
 
         try {
           if (complex_field) {
@@ -216,6 +218,7 @@ int main()
         std::cout << "\n? ";
         // Permette di gestire nomi di file che contengono spazi
         std::getline(std::cin, terms_file);
+        std::cout << "Elaborazione in corso. Attendere ..." << std::endl;
 
         try {
           if (complex_field) {
@@ -223,6 +226,7 @@ int main()
                 rows, complex_on_tot, first_bound, second_bound);
             Matrix<std::complex<double>> mat(
                 rows, cols, complex_on_tot, first_bound, second_bound);
+
             auto sol = mat.solve(terms);
             auto& sol_set = std::get<0>(sol);
             auto& sol_idx = std::get<1>(sol);

@@ -98,19 +98,20 @@ class Matrix
   //   [1] = elenco degli indici associati alle incognite
   // Se il sistema è indeterminato, alcune incognite assumono il ruolo di
   // parametro. Quindi ogni soluzione elenca anche i valori dei coefficienti
-  // dei parametri, in ordine crescente dell'indice dei parametri.
+  // dei parametri, in ordine decrescente dell'indice dei parametri.
+  //
   // es. sistema 2 eq, 4 incognite
   //     auto sol = mat.solve(terms);
   //     std::get<0>(sol) è {{1., 0.4, -4.3}, {3.2, -0.1, 0.6}}
   //     std::get<1>(sol) è {0,1}
-  //     La soluzione è: x[0] = 1.  + 0.4*x[2] - 4.3*x[3]
-  //                     x[1] = 3.2 - 0.1*x[2] + 0.6*x[3]
-  // Risolve il sistema a coefficienti REALI è composto dalla matrice e da
+  //     La soluzione è: x[0] = 1.  + 0.4*x[3] - 4.3*x[2]
+  //                     x[1] = 3.2 - 0.1*x[3] + 0.6*x[2]
+  // Risolve il sistema a coefficienti REALI composto dalla matrice e da
   // 'const_terms' termini noti
   template <std::floating_point X = T>
   std::tuple<typename std::vector<std::vector<X>>, std::vector<long>> solve(
       const NZVector<X>& const_terms) const;
-  // Risolve il sistema a coefficienti COMPLESSI è composto dalla matrice e da
+  // Risolve il sistema a coefficienti COMPLESSI composto dalla matrice e da
   // 'const_terms' termini noti
   template <std::floating_point X>
   std::tuple<typename std::vector<std::vector<std::complex<X>>>,
