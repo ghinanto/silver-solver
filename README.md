@@ -22,3 +22,7 @@ $ cd build
 $ cmake -G Ninja -D CMAKE_CXX_COMPILER=g++-10 ../
 $ ninja
 ```
+Quindi per invocare il programma
+```
+$ ./silver-solver
+```
