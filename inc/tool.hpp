@@ -38,7 +38,7 @@ bool is_zero(const std::complex<T>&);
 // Quando usato per inizializzare un NZVector, il compilatore elide la copia
 // (NRVO) costruendo direttamente il vettore di destinazione.
 template <std::floating_point T>
-NZVector<T> rand_to_vec(size_t size, T first_bound, T second_bound = 0.);
+NZVector<T> rand_to_vec(std::size_t size, T first_bound, T second_bound = 0.);
 
 // Restituisce un vettore con 'size' valori random complessi.
 // 'complex_on_tot' varia da [0,100] e rappresenta la percentuale di
@@ -47,7 +47,7 @@ NZVector<T> rand_to_vec(size_t size, T first_bound, T second_bound = 0.);
 // Quando usato per inizializzare un NZVector, il compilatore elide la copia
 // (NRVO) costruendo direttamente il vettore di destinazione.
 template <std::floating_point T>
-NZVector<std::complex<T>> rand_to_vec(size_t size,
+NZVector<std::complex<T>> rand_to_vec(std::size_t size,
                                       short complex_on_tot,
                                       T first_bound,
                                       T second_bound = 0.);
