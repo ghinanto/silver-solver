@@ -58,19 +58,20 @@ int main()
            p_idx < n_pars;
            ++p_idx)
         pars_idx.push_back(end + p_idx);
+
       // Le righe mostrano le componenti del vettore soluzione
       long i{0};
       for (const auto& sol : sol_set) {
         s_line.str(std::string());  // Svuota lo stringstream
         s_line << std::noshowpos;
         s_line << "\nx[" << sol_idx.at(i++) << "] = ";
-
+        // Mostra il valore numerico
         auto pars_idx_it = pars_idx.rbegin();
         for (auto coeff_it = sol.begin(); coeff_it != sol.end(); ++coeff_it) {
           s_line << std::scientific << std::left << std::setprecision(4)
                  << std::showpos;
           s_line << *coeff_it;
-
+          // Mostra i coefficienti dei parametri
           if (coeff_it != sol.begin())
             s_line << std::internal << std::noshowpos << "*x["
                    << *(pars_idx_it++) << "]";
